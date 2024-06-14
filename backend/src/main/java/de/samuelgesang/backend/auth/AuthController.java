@@ -1,7 +1,6 @@
 package de.samuelgesang.backend.auth;
 
-
-import de.samuelgesang.backend.auth.domain.GitHubUserProfile;
+import de.samuelgesang.backend.auth.domain.GoogleUserProfile;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,14 +14,14 @@ import java.util.Map;
 public class AuthController {
 
     @GetMapping("/me")
-    public GitHubUserProfile getMe(@AuthenticationPrincipal OAuth2User user) {
+    public GoogleUserProfile getMe(@AuthenticationPrincipal OAuth2User user) {
         Map<String, Object> returnValue = user.getAttributes();
 
-        return new GitHubUserProfile(
-                returnValue.get("id").toString(),
-                returnValue.get("login").toString(),
-                returnValue.get("avatar_url").toString(),
-                returnValue.get("name").toString()
+        return new GoogleUserProfile(
+                returnValue.get("sub").toString(),
+                returnValue.get("email").toString(),
+                returnValue.get("picture").toString(),
+                returnValue.get("given_name").toString()
         );
     }
 }
