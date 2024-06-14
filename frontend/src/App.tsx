@@ -1,4 +1,5 @@
 import logo from '/logo.png'
+import google from'./assets/google.png'
 import './App.css'
 import axios from "axios";
 import {useEffect, useState} from "react";
@@ -47,9 +48,11 @@ function App() {
   return (
       <>
           <h1>SitemapDiff</h1>
-          <img src={logo} className="logo" alt="App logo"/>
+          <img src={logo} className="logo" alt="SitemapDiff logo"/>
           {user && <p>Hallo, {user.name}!</p>}
-          {user ? <button onClick={logout}>logout</button>  : <button onClick={login}>login</button>}
+          {user ? <button onClick={logout}>logout</button>  :
+              <button onClick={login}>login with <img src={google} alt="Google logo" width={16}/>
+              </button>}
       </>
   )
 }
