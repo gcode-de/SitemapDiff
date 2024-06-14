@@ -9,7 +9,7 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     environment: production
-    env:
+#    env:
 #      VITE_BETTERSTACK_TOKEN: ${{ secrets.VITE_BETTERSTACK_TOKEN }}
 
     steps:
@@ -54,7 +54,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: RestaurantApp.jar
-          path: backend/target/SitemapDiff.jar # must match the finalName in the pom.xml
+          path: backend/target/sitemapdiff.jar # must match the finalName in the pom.xml
 
   push-to-docker-hub:
     runs-on: ubuntu-latest
