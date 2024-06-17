@@ -1,7 +1,8 @@
 import React from 'react';
 import {Box, Button, Card, CardContent, Tooltip, Typography} from '@mui/material';
 import SiteItem from './SiteItem';
-import {Site} from "../App.tsx";
+
+import {Site} from "../types/Site.tsx";
 
 type SiteListProps = {
     sites: Site[] | null | undefined;
@@ -15,7 +16,7 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
         <Box sx={{display: 'flex', justifyContent: 'space-around', padding: 0, margin: 0, gap: 2, overflow: 'visible'}}>
             {sites?.map((site) => (
                 <Card key={site.id}
-                      sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+                      sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '75vh'}}>
                     <CardContent sx={{flex: '1 1 auto'}}>
                         <Typography variant="h5">{site.name}</Typography>
                         <Tooltip title={

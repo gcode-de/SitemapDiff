@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import SiteList from '../components/SiteList';
 import {Box} from '@mui/material';
 import SiteForm from "../components/SiteForm.tsx";
-import {Site} from "../App.tsx";
 import Footer from "../components/Footer.tsx";
+import {Site} from "../types/Site.tsx";
 
 type HomeProps = {
     sites: Site[] | null | undefined;
@@ -43,6 +43,10 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
         console.log("crawl ", siteId);
     }
 
+    const handleCrawlAllSites = () => {
+        console.log("crawl all sites");
+    }
+
     return (
         <>
             <Box sx={{
@@ -65,7 +69,7 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
                     </Box>
                 }
             </Box>
-            <Footer setIsAddSite={setIsAddSite}/>
+            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites}/>
         </>
     );
 };

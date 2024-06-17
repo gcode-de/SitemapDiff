@@ -1,7 +1,7 @@
 import React from 'react';
 import {List} from '@mui/material';
-import {Site} from "../App.tsx";
 import CrawlItem from "./CrawlItem.tsx";
+import {Site} from "../types/Site.tsx";
 
 type SiteItemProps = {
     site: Site;

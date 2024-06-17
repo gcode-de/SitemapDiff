@@ -1,6 +1,7 @@
 import React, {ChangeEvent, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
-import {Site} from "../App.tsx";
+
+import {Site} from "../types/Site.tsx";
 
 type SiteFormProps = {
     handleEditSite: (formData: Site | undefined | null) => Site,
@@ -38,6 +39,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     sx={{marginBottom: 2}}
                     name="name"
                     value={formData?.name || ''}
+                    required={true}
                     onChange={handleChange}
                 />
                 <TextField
@@ -45,6 +47,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     fullWidth
                     sx={{marginBottom: 2}}
                     name="baseURL"
+                    required={true}
                     value={formData?.baseURL || ''}
                     onChange={handleChange}
                 />
@@ -56,6 +59,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     fullWidth
                     sx={{marginBottom: 2}}
                     name="sitemaps"
+                    required={true}
                     value={(formData?.sitemaps || []).join('\n')}
                     onChange={(e) => setFormData({
                         ...formData,
