@@ -6,7 +6,7 @@ import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 
 type HomeProps = {
-    sites: Site[] | null | undefined;
+    sites: Site[];
 }
 
 const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {

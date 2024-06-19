@@ -5,7 +5,7 @@ import SiteItem from './SiteItem';
 import {Site} from "../types/Site.tsx";
 
 type SiteListProps = {
-    sites: Site[] | null | undefined;
+    sites: Site[];
     setEditSiteId: (siteId: string) => void;
     handleCheckUrl: (crawlId: string, url: string) => void;
     handleCrawlSite: (siteId: string) => void;

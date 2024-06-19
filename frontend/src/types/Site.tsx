@@ -1,7 +1,7 @@
 import {Crawl} from "./Crawl.tsx";
 
 export type Site = {
-    id?: string;
+    id: string;
     name: string;
     baseURL: string;
     sitemaps: string[];

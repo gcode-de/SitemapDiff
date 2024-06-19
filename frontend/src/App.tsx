@@ -13,7 +13,7 @@ import {Site} from "./types/Site.tsx";
 const App: React.FC = () => {
 
     const [user, setUser] = useState<User | null | undefined>(undefined)
-    const [sites, setSites] = useState<Site[] | null | undefined>(defaultSites)
+    const [sites, setSites] = useState<Site[]>(defaultSites)
 
     const loadUser = () => {
         axios.get('/api/auth/me')
@@ -43,7 +43,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         loadSites();
-    }, [loadSites, user]);
+    }, [user]);
 
 
     function login() {
