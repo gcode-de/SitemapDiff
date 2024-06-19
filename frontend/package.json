@@ -8,7 +8,8 @@
     "build": "tsc && vite build",
     "test": "jest",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prettify": "prettier ./src -w"
   },
   "dependencies": {
     "@emotion/react": "^11.11.4",
@@ -22,6 +23,7 @@
     "swr": "^2.2.5"
   },
   "devDependencies": {
+    "prettier": "^3.3.2",
     "@testing-library/jest-dom": "^6.4.5",
     "@testing-library/react": "^15.0.7",
     "@types/jest": "^29.5.12",
