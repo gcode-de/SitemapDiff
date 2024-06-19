@@ -30,7 +30,6 @@ const SiteForm: React.FC<SiteFormProps> = ({
     };
 
     useEffect(() => {
-        // Überprüfen, ob alle erforderlichen Felder ausgefüllt sind
         if (formData?.name && formData?.baseURL && formData?.sitemaps && formData.sitemaps.length > 0) {
             setIsFormValid(true);
         } else {
