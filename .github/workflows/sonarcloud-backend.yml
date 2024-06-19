@@ -1,8 +1,7 @@
 name: SonarCloud Backend
 on:
-  push:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 jobs:
   build:
     name: Build and analyze
