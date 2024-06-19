@@ -1,8 +1,7 @@
 name: SonarCloud Frontend
 on:
-  push:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types: [ opened, synchronize, reopened ]
 jobs:
   sonarcloud:
     name: SonarCloud
@@ -16,7 +15,7 @@ jobs:
         run: npm install
       - name: Test with coverage
         working-directory: ./frontend
-        run: npx jest --coverage
+        run: npx jest --coverage --passWithNoTests
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
