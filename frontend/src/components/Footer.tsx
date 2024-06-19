@@ -1,29 +1,37 @@
-import {Box, Button, Toolbar} from '@mui/material';
+import {AppBar, Box, Button, Toolbar} from '@mui/material';
 import React from "react";
 
 type FooterProps = {
     setIsAddSite: (state: boolean) => void;
     handleCrawlAllSites: () => void;
 }
+
 const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites}: FooterProps) => {
     return (
-        <Toolbar sx={{
-            position: 'fixed',
-            bottom: 0,
-            width: '100%',
+        <AppBar position="fixed" sx={{
+            top: 'auto', bottom: 0, bgcolor: 'background.default',
+            color: 'text.primary'
         }}>
-            <Box sx={{
-                maxWidth: '100vw',
-                width: '90%',
+            <Toolbar sx={{
                 display: 'flex',
                 justifyContent: 'space-between',
-                margin: 0,
-                padding: 0
+                minHeight: 42,
+                width: '100%',
+                maxWidth: '1200px',
+                margin: '0 auto',
+                bgcolor: 'background.default',
+                color: 'text.primary'
             }}>
-                <Button variant="contained" color="primary" onClick={() => setIsAddSite(true)}>Add Site</Button>
-                <Button variant="contained" color="primary" onClick={handleCrawlAllSites}>Crawl All</Button>
-            </Box>
-        </Toolbar>
+                <Box sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    width: '100%',
+                }}>
+                    <Button variant="contained" color="primary" onClick={() => setIsAddSite(true)}>Add Site</Button>
+                    <Button variant="contained" color="primary" onClick={handleCrawlAllSites}>Crawl All</Button>
+                </Box>
+            </Toolbar>
+        </AppBar>
     );
 };
 

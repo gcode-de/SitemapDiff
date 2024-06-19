@@ -1,12 +1,11 @@
-import React, {ChangeEvent, useState} from 'react';
+import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
-
 import {Site} from "../types/Site.tsx";
 
 type SiteFormProps = {
     handleEditSite: (formData: Site | undefined | null) => Site,
     handleAddSite: (formData: Site | undefined | null) => Site,
-    handleDeleteSite: (id: string) => string;
+    handleDeleteSite: (id: string | undefined) => string;
     handleAbortForm: () => void,
     data: Site | null | undefined,
 }
@@ -20,14 +19,36 @@ const SiteForm: React.FC<SiteFormProps> = ({
                                            }: SiteFormProps) => {
 
     const [formData, setFormData] = useState<Site | undefined | null>(data);
+    const [isFormValid, setIsFormValid] = useState<boolean>(false);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
             [name]: value,
-        }));
+        } as Site));
     };
+
+    useEffect(() => {
+        // Überprüfen, ob alle erforderlichen Felder ausgefüllt sind
+        if (formData?.name && formData?.baseURL && formData?.sitemaps && formData.sitemaps.length > 0) {
+            setIsFormValid(true);
+        } else {
+            setIsFormValid(false);
+        }
+    }, [formData]);
+
+    const findSitemapsByBaseURL = (url: string | undefined): string[] => {
+        if (!url) throw new Error("No URL provided.")
+        console.log("Find Sitemaps for", url)
+        return [url]
+    }
+
+    function checkSitemaps(sitemaps: string[] | undefined) {
+        if (!sitemaps) throw new Error("No sitemaps provided.")
+        console.log("Check Sitemaps:", sitemaps)
+        return [sitemaps]
+    }
 
     return (
         <Card key={'siteForm'} sx={{width: '360px'}}>
@@ -51,7 +72,9 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     value={formData?.baseURL || ''}
                     onChange={handleChange}
                 />
-                <Button variant="contained" sx={{marginBottom: 2}}>Find Sitemaps</Button>
+                <Button variant="contained" sx={{marginBottom: 2}}
+                        disabled={!formData?.baseURL} onClick={() => findSitemapsByBaseURL(formData?.baseURL)}>Find
+                    Sitemaps</Button>
                 <TextField
                     label="Enter Sitemap-URLs manually one per line"
                     multiline
@@ -64,9 +87,10 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     onChange={(e) => setFormData({
                         ...formData,
                         sitemaps: e.target.value.split('\n')
-                    })}
+                    } as Site)}
                 />
-                <Button variant="contained" sx={{marginBottom: 2}}>Check Sitemaps</Button>
+                <Button variant="contained" sx={{marginBottom: 2}} disabled={!formData?.sitemaps}
+                        onClick={() => checkSitemaps(formData?.sitemaps)}>Check Sitemaps</Button>
                 <Box>
                     {data &&
                         <Button variant="contained" color="error" sx={{marginRight: 2}} onClick={() => {
@@ -77,8 +101,11 @@ const SiteForm: React.FC<SiteFormProps> = ({
                             onClick={handleAbortForm}>Cancel</Button>
                     {data ?
                         <Button variant="contained" color="primary"
-                                onClick={() => handleEditSite(formData)}>Save</Button> :
-                        <Button variant="contained" color="primary" onClick={() => handleAddSite(formData)}>Add</Button>
+                                onClick={() => handleEditSite(formData)}
+                                disabled={!isFormValid}>Save</Button> :
+                        <Button variant="contained" color="primary"
+                                onClick={() => handleAddSite(formData)}
+                                disabled={!isFormValid}>Add</Button>
                     }
                 </Box>
             </CardContent>

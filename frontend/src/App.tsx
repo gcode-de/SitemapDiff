@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import {Container, CssBaseline} from '@mui/material';
+import {Container, CssBaseline, ThemeProvider} from '@mui/material';
+import theme from './theme';
 import Header from './components/Header';
 import Home from './pages/Home';
 import './App.css'
@@ -42,7 +43,7 @@ const App: React.FC = () => {
 
     useEffect(() => {
         loadSites();
-    }, [user]);
+    }, [loadSites, user]);
 
 
     function login() {
@@ -62,13 +63,15 @@ const App: React.FC = () => {
 
     return (
         <Router>
-            <CssBaseline/>
-            <Container sx={{width: '100%'}}>
-                <Header login={login} logout={logout} user={user}/>
-                <Routes>
-                    <Route path="/" element={<Home sites={sites}/>}/>
-                </Routes>
-            </Container>
+            <ThemeProvider theme={theme}>
+                <CssBaseline/>
+                <Container sx={{width: '100%'}}>
+                    <Header login={login} logout={logout} user={user}/>
+                    <Routes>
+                        <Route path="/" element={<Home sites={sites}/>}/>
+                    </Routes>
+                </Container>
+            </ThemeProvider>
         </Router>
     );
 }

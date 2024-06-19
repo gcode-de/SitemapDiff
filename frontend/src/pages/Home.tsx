@@ -13,20 +13,32 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
 
-    const handleAddSite = (formData: Site): Site => {
-        setIsAddSite(false);
-        console.log(formData)
-        return formData;
+    const handleAddSite = (formData: Site | null | undefined): Site => {
+        if (formData) {
+            setIsAddSite(false);
+            console.log(formData);
+            return formData;
+        }
+        throw new Error("Form data is null or undefined");
     }
 
-    const handleEditSite = (formData: Site): Site => {
-        setEditSiteId(null);
-        console.log(formData)
-        return formData;
+    const handleEditSite = (formData: Site | null | undefined): Site => {
+        if (formData) {
+            setEditSiteId(null);
+            console.log(formData);
+            return formData;
+        }
+        throw new Error("Form data is null or undefined");
     }
 
-    const handleDeleteSite = (siteId: string): string => {
-        return siteId;
+    const handleDeleteSite = (siteId: string | undefined): string => {
+        if (siteId) {
+            setIsAddSite(false);
+            setEditSiteId(null);
+            console.log("Delete Site:", siteId)
+            return siteId;
+        }
+        throw new Error("Site ID is null or undefined");
     }
 
     const handleAbortForm = () => {
@@ -57,7 +69,7 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
                 paddingTop: 2,
                 height: '80vh',
                 width: '95vw',
-                overflowX: 'auto' // Use overflowX for horizontal scrolling
+                overflowX: 'auto'
             }}>
                 <SiteList sites={sites} setEditSiteId={setEditSiteId} handleCheckUrl={handleCheckUrl}
                           handleCrawlSite={handleCrawlSite}/>
