@@ -25,9 +25,10 @@ describe('SiteForm Component', () => {
 
         expect(screen.getByText(/Add Site/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
-        // expect(screen.getByLabelText('URL')).toBeInTheDocument();
+        expect(screen.getByRole('textbox', {name: 'URL'})).toBeInTheDocument();
         expect(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i)).toBeInTheDocument();
     });
+
 
     test('renders Edit Site form', () => {
         const data: Site = {
