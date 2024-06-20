@@ -1,19 +1,19 @@
-import logo from '/logo.png'
-import google from'./assets/google.png'
+import React, {useEffect, useState} from 'react';
+import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {Container, CssBaseline, ThemeProvider} from '@mui/material';
+import theme from './theme';
+import Header from './components/Header';
+import Home from './pages/Home';
 import './App.css'
 import axios from "axios";
-import {useEffect, useState} from "react";
+import {defaultSites} from "./assets/defaultSites.ts";
+import {User} from "./types/User.tsx";
+import {Site} from "./types/Site.tsx";
 
-type user ={
-    name: string,
-    email: string,
-    id: string,
-    picture: string
-}
+const App: React.FC = () => {
 
-function App() {
-
-    const [user, setUser] = useState<user | null | undefined>(undefined)
+    const [user, setUser] = useState<User | null | undefined>(undefined)
+    const [sites, setSites] = useState<Site[]>(defaultSites)
 
     const loadUser = () => {
         axios.get('/api/auth/me')
@@ -26,9 +26,25 @@ function App() {
             })
     }
 
+    const loadSites = () => {
+        axios.get(`/api/sites/${user?.id}`)
+            .then(response => {
+                setSites(response.data)
+            })
+            .catch(error => {
+                // setSites([])
+                console.error(error);
+            })
+    }
+
     useEffect(() => {
-        loadUser()
+        loadUser();
     }, [])
+
+    useEffect(() => {
+        loadSites();
+    }, [user]);
+
 
     function login() {
         const host =
@@ -45,16 +61,19 @@ function App() {
         window.open(host + '/logout', '_self')
     }
 
-  return (
-      <>
-          <h1>SitemapDiff</h1>
-          <img src={logo} className="logo" alt="SitemapDiff logo"/>
-          {user && <p>Hallo, {user.name}!</p>}
-          {user ? <button onClick={logout}>logout</button>  :
-              <button onClick={login}>login with <img src={google} alt="Google logo" width={16}/>
-              </button>}
-      </>
-  )
+    return (
+        <Router>
+            <ThemeProvider theme={theme}>
+                <CssBaseline/>
+                <Container sx={{width: '100%'}}>
+                    <Header login={login} logout={logout} user={user}/>
+                    <Routes>
+                        <Route path="/" element={<Home sites={sites}/>}/>
+                    </Routes>
+                </Container>
+            </ThemeProvider>
+        </Router>
+    );
 }
 
 export default App
