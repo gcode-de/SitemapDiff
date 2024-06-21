@@ -6,14 +6,13 @@ import Header from './components/Header';
 import Home from './pages/Home';
 import './App.css'
 import axios from "axios";
-import {defaultSites} from "./assets/defaultSites.ts";
 import {User} from "./types/User.tsx";
 import {Site} from "./types/Site.tsx";
 
 const App: React.FC = () => {
 
     const [user, setUser] = useState<User | null | undefined>(undefined)
-    const [sites, setSites] = useState<Site[]>(defaultSites)
+    const [sites, setSites] = useState<Site[]>([])
 
     const loadUser = () => {
         axios.get('/api/auth/me')
@@ -27,7 +26,7 @@ const App: React.FC = () => {
     }
 
     const loadSites = () => {
-        axios.get(`/api/sites/${user?.id}`)
+        axios.get(`/api/sites/user/${user?.id}`)
             .then(response => {
                 setSites(response.data)
             })
@@ -42,7 +41,7 @@ const App: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        loadSites();
+        if (user) loadSites();
     }, [user]);
 
 

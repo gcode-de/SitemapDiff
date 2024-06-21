@@ -1,6 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
 import {Site} from "../types/Site.tsx";
+import axios from "axios";
 
 type SiteFormProps = {
     handleEditSite: (formData: Site | undefined | null) => Site,
@@ -37,17 +38,26 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     }, [formData]);
 
-    const findSitemapsByBaseURL = (url: string | undefined): string[] => {
-        if (!url) throw new Error("No URL provided.")
-        console.log("Find Sitemaps for", url)
-        return [url]
-    }
+    const findSitemapsByBaseURL = async (url: string | undefined): Promise<string[]> => {
+        if (!url) throw new Error("No URL provided.");
+        console.log("Find Sitemaps for", url);
 
-    function checkSitemaps(sitemaps: string[] | undefined) {
-        if (!sitemaps) throw new Error("No sitemaps provided.")
-        console.log("Check Sitemaps:", sitemaps)
-        return [sitemaps]
-    }
+        try {
+            const response = await axios.get<string[]>('/api/sitemaps/find', {params: {baseURL: url}});
+            setFormData({...formData, sitemaps: response.data} as Site)
+            return response.data;
+        } catch (error) {
+            console.error("Error finding sitemaps:", error);
+            throw new Error("Could not retrieve sitemaps.");
+        }
+    };
+
+    // to be used later:
+    // function checkSitemaps(sitemaps: string[] | undefined) {
+    //     if (!sitemaps) throw new Error("No sitemaps provided.")
+    //     console.log("Check Sitemaps:", sitemaps)
+    //     return [sitemaps]
+    // }
 
     return (
         <Card key={'siteForm'} sx={{width: '360px'}}>
@@ -75,7 +85,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                         disabled={!formData?.baseURL} onClick={() => findSitemapsByBaseURL(formData?.baseURL)}>Find
                     Sitemaps</Button>
                 <TextField
-                    label="Enter Sitemap-URLs manually one per line"
+                    label="Enter Sitemap-URLs manually, one per line"
                     multiline
                     rows={4}
                     fullWidth
@@ -88,8 +98,11 @@ const SiteForm: React.FC<SiteFormProps> = ({
                         sitemaps: e.target.value.split('\n')
                     } as Site)}
                 />
-                <Button variant="contained" sx={{marginBottom: 2}} disabled={!formData?.sitemaps}
-                        onClick={() => checkSitemaps(formData?.sitemaps)}>Check Sitemaps</Button>
+
+                {/* to be used later:*/}
+                {/*<Button variant="contained" sx={{marginBottom: 2}} disabled={!formData?.sitemaps}*/}
+                {/*        onClick={() => checkSitemaps(formData?.sitemaps)}>Check Sitemaps</Button>*/}
+
                 <Box>
                     {data &&
                         <Button variant="contained" color="error" sx={{marginRight: 2}} onClick={() => {
