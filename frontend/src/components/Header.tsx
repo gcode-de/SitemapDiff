@@ -25,7 +25,7 @@ const Header: React.FC<HeaderProps> = ({login, logout, user}: HeaderProps) => {
                         SitemapDiff
                     </Typography>
                 </Box>
-                {user && <p>Hallo, {user.name}!</p>}
+                {<Typography>Hello, {user ? user.name : "guest user"}!</Typography>}
                 {user ? <Button color="inherit" onClick={logout}>Logout</Button> :
                     <Button color="inherit" onClick={login}>Login with <img src={google} alt="Google logo" width={16}
                                                                             style={{marginLeft: 8}}/></Button>}

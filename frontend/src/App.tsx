@@ -26,7 +26,7 @@ const App: React.FC = () => {
     }
 
     const loadSites = () => {
-        axios.get(`/api/sites/user/${user?.id}`)
+        axios.get(`/api/sites`)
             .then(response => {
                 setSites(response.data)
             })
@@ -41,7 +41,7 @@ const App: React.FC = () => {
     }, [])
 
     useEffect(() => {
-        if (user) loadSites();
+        loadSites();
     }, [user]);
 
 

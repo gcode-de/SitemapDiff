@@ -37,7 +37,7 @@ describe('Header Component', () => {
     test('renders user greeting and logout button when user is logged in', () => {
         render(<Header login={login} logout={logout} user={user}/>);
 
-        const greeting = screen.getByText(`Hallo, ${user.name}!`);
+        const greeting = screen.getByText(`Hello, ${user.name}!`);
         const logoutButton = screen.getByText('Logout');
 
         expect(greeting).toBeInTheDocument();
