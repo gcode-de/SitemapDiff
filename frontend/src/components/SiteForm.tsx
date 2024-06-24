@@ -1,12 +1,15 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
-import {Site} from '../types/Site';
 import axios from 'axios';
+import {Site} from '../types/Site';
 
 type SiteFormProps = {
     handleAbortForm: () => void,
     data: Site | null | undefined,
-    refreshSites: () => void
+    refreshSites: () => void,
+    handleAddSite: (site: Site | undefined | null) => void,
+    handleEditSite: (site: Site) => void,
+    handleDeleteSite: (id: string) => void,
 }
 
 const SiteForm: React.FC<SiteFormProps> = ({
@@ -17,6 +20,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
 
     const [formData, setFormData] = useState<Site | undefined | null>(data);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
         const {name, value} = e.target;
@@ -34,18 +38,30 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     }, [formData]);
 
+    const isURLValid = (url: string | undefined): boolean => {
+        if (!url) return false;
+        const pattern = /^(https?:\/\/)/;
+        return pattern.test(url);
+    };
+
     const findSitemapsByBaseURL = async (url: string | undefined): Promise<string[]> => {
         if (!url) throw new Error("No URL provided.");
+        if (!isURLValid(url)) {
+            setError("URL must start with http:// or https://");
+            return [];
+        }
 
         try {
             const response = await axios.get<string[]>('/api/sitemaps/find', {params: {baseURL: url}});
             setFormData({...formData, sitemaps: response.data} as Site)
+            setError(null);
             return response.data;
-        } catch (error) {
-            console.error("Error finding sitemaps:", error);
+        } catch (error: any) {
+            setError(error.response ? error.response.data : "Error finding sitemaps");
             throw new Error("Could not retrieve sitemaps.");
         }
     };
+
 
     const createSite = async (site: Site | undefined | null) => {
         try {
@@ -83,6 +99,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
         <Card key={'siteForm'} sx={{width: '360px'}}>
             <CardContent>
                 <Typography variant="h6">{data ? "Edit" : "Add"} Site</Typography>
+                {error && <Typography color="error">{error}</Typography>}
                 <TextField
                     label="Title"
                     fullWidth
@@ -100,9 +117,12 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     required={true}
                     value={formData?.baseURL || ''}
                     onChange={handleChange}
+                    helperText={formData?.baseURL && !isURLValid(formData.baseURL) ? "URL must start with http:// or https://" : ""}
+                    error={!!(formData?.baseURL && !isURLValid(formData.baseURL))}
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
-                        disabled={!formData?.baseURL} onClick={() => findSitemapsByBaseURL(formData?.baseURL)}>Find
+                        disabled={!formData?.baseURL || !isURLValid(formData.baseURL)}
+                        onClick={() => findSitemapsByBaseURL(formData?.baseURL)}>Find
                     Sitemaps</Button>
                 <TextField
                     label="Enter Sitemap-URLs manually, one per line"

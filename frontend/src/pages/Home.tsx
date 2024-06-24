@@ -1,9 +1,10 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import SiteList from '../components/SiteList';
 import {Box} from '@mui/material';
 import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
+import axios from "axios";
 
 type HomeProps = {
     sites: Site[];
@@ -14,10 +15,26 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
 
-    const handleAddSite = (formData: Site | null | undefined): Site => {
+    useEffect(() => {
+        if (isAddSite || editSiteId) {
+            const scrollContainer = document.querySelector('#scrollContainer');
+            if (scrollContainer) {
+                scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+            }
+        }
+    }, [isAddSite, editSiteId]);
+
+    const handleAddSite = async (formData: Site | null | undefined): Promise<Site> => {
         if (formData) {
             setIsAddSite(false);
             console.log(formData);
+            try {
+                const response = await axios.post<Site>('/api/sites', formData);
+                refreshSites();
+                handleAbortForm();
+            } catch (error) {
+                console.error('Error creating site:', error);
+            }
             return formData;
         }
         throw new Error("Form data is null or undefined");
@@ -36,7 +53,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         if (siteId) {
             setIsAddSite(false);
             setEditSiteId(null);
-            console.log("Delete Site:", siteId)
+            console.log("Delete Site:", siteId);
             return siteId;
         }
         throw new Error("Site ID is null or undefined");
@@ -62,7 +79,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
 
     return (
         <>
-            <Box sx={{
+            <Box id="scrollContainer" sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
