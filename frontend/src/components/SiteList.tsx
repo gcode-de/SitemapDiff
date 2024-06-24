@@ -22,7 +22,7 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                         <Tooltip title={
                             <Box>
                                 Sitemaps:
-                                {site.sitemaps.map((sitemap, index) => (
+                                {site.sitemaps?.map((sitemap, index) => (
                                     <Typography key={index} variant='caption' display='block'>{sitemap}</Typography>
                                 ))}
                             </Box>

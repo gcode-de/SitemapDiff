@@ -1,67 +1,81 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import SiteList from '../components/SiteList';
 import {Box} from '@mui/material';
 import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
+import {createSite, deleteSite, updateSite} from '../api';
 
 type HomeProps = {
-    sites: Site[];
+    sites: Site[],
+    refreshSites: () => void,
 }
 
-const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
+const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
 
-    const handleAddSite = (formData: Site | null | undefined): Site => {
-        if (formData) {
-            setIsAddSite(false);
-            console.log(formData);
-            return formData;
+    useEffect(() => {
+        if (isAddSite || editSiteId) {
+            const scrollContainer = document.querySelector('#scrollContainer');
+            if (scrollContainer) {
+                scrollContainer.scrollLeft = scrollContainer.scrollWidth;
+            }
         }
-        throw new Error("Form data is null or undefined");
-    }
+    }, [isAddSite, editSiteId]);
 
-    const handleEditSite = (formData: Site | null | undefined): Site => {
-        if (formData) {
-            setEditSiteId(null);
-            console.log(formData);
-            return formData;
+    const handleAddSite = async (formData: Site | null | undefined) => {
+        try {
+            await createSite(formData);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error creating site:', error);
         }
-        throw new Error("Form data is null or undefined");
-    }
+    };
 
-    const handleDeleteSite = (siteId: string | undefined): string => {
-        if (siteId) {
-            setIsAddSite(false);
-            setEditSiteId(null);
-            console.log("Delete Site:", siteId)
-            return siteId;
+    const handleEditSite = async (formData: Site | null | undefined) => {
+        try {
+            await updateSite(formData);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error updating site:', error);
         }
-        throw new Error("Site ID is null or undefined");
-    }
+    };
+
+    const handleDeleteSite = async (siteId: string | undefined) => {
+        try {
+            if (window.confirm('Are you sure you want to delete this site?')) {
+                await deleteSite(siteId);
+                refreshSites();
+                handleAbortForm();
+            }
+        } catch (error) {
+            console.error('Error deleting site:', error);
+        }
+    };
 
     const handleAbortForm = () => {
         setIsAddSite(false);
         setEditSiteId(null);
-    }
+    };
 
     const handleCheckUrl = (crawlId: string, url: string) => {
         console.log("Toggle checkbox:", crawlId, url);
-        return;
-    }
+    };
 
     const handleCrawlSite = (siteId: string) => {
         console.log("crawl ", siteId);
-    }
+    };
 
     const handleCrawlAllSites = () => {
         console.log("crawl all sites");
-    }
+    };
 
     return (
         <>
-            <Box sx={{
+            <Box id="scrollContainer" sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
@@ -75,9 +89,12 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
                           handleCrawlSite={handleCrawlSite}/>
                 {(isAddSite || editSiteId) &&
                     <Box sx={{flex: '0 0 auto'}}>
-                        <SiteForm data={sites?.find(site => site.id === editSiteId)} handleAddSite={handleAddSite}
-                                  handleEditSite={handleEditSite} handleDeleteSite={handleDeleteSite}
-                                  handleAbortForm={handleAbortForm}/>
+                        <SiteForm data={sites?.find(site => site.id === editSiteId)}
+                                  handleAddSite={handleAddSite}
+                                  handleEditSite={handleEditSite}
+                                  handleDeleteSite={handleDeleteSite}
+                                  handleAbortForm={handleAbortForm}
+                                  refreshSites={refreshSites}/>
                     </Box>
                 }
             </Box>

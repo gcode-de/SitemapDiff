@@ -12,8 +12,10 @@ const defaultProps = {
     handleAddSite: mockHandleAddSite,
     handleDeleteSite: mockHandleDeleteSite,
     handleAbortForm: mockHandleAbortForm,
+    refreshSites: jest.fn(),
     data: null,
 };
+
 
 describe('SiteForm Component', () => {
     afterEach(() => {
@@ -26,7 +28,7 @@ describe('SiteForm Component', () => {
         expect(screen.getByText(/Add Site/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
         expect(screen.getByRole('textbox', {name: 'URL'})).toBeInTheDocument();
-        expect(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i)).toBeInTheDocument();
     });
 
 
@@ -54,7 +56,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: 'New Site'}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
 
         expect(screen.getByRole('button', {name: /add/i})).toBeEnabled();
     });
@@ -64,7 +66,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: ''}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: ''}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i), {target: {value: ''}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: ''}});
 
         expect(screen.getByRole('button', {name: /add/i})).toBeDisabled();
     });
@@ -74,7 +76,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: 'New Site'}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
 
         fireEvent.click(screen.getByRole('button', {name: /add/i}));
 
@@ -142,17 +144,4 @@ describe('SiteForm Component', () => {
         expect(screen.getByRole('button', {name: /find sitemaps/i})).toBeEnabled();
     });
 
-    test('disables Check Sitemaps button if sitemaps are empty', () => {
-        render(<SiteForm {...defaultProps} />);
-
-        expect(screen.getByRole('button', {name: /check sitemaps/i})).toBeDisabled();
-    });
-
-    test('enables Check Sitemaps button if sitemaps are provided', () => {
-        render(<SiteForm {...defaultProps} />);
-
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
-
-        expect(screen.getByRole('button', {name: /check sitemaps/i})).toBeEnabled();
-    });
 });

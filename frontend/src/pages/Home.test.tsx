@@ -25,15 +25,17 @@ describe('Home Component', () => {
         }
     ];
 
+    const refreshSitesMock = jest.fn();
+
     test('renders Home with SiteList', () => {
-        render(<Home sites={sites}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
         const siteList = screen.getByText('Site 1');
         expect(siteList).toBeInTheDocument();
     });
 
 
     test('calls handleCrawlAllSites when Crawl All button is clicked', () => {
-        render(<Home sites={sites}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);
