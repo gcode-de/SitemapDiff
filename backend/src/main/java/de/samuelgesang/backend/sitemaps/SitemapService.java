@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,6 +29,10 @@ public class SitemapService {
             }
 
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document document = builder.parse(new InputSource(new StringReader(content)));
 
@@ -43,16 +48,16 @@ public class SitemapService {
                 }
             }
         } catch (Exception e) {
-            throw new Exception("Failed to find sitemaps. Please enter manually.");
+            throw new Exception("Failed to find sitemaps. Please enter manually.", e);
         }
         return sitemaps.toArray(new String[0]);
     }
 
     private URL createURLWithProtocol(String urlString) throws Exception {
         try {
-            return new URL("https://" + removeProtocol(urlString));
+            return new URI("https://" + removeProtocol(urlString)).toURL();
         } catch (Exception e) {
-            return new URL("http://" + removeProtocol(urlString));
+            return new URI("http://" + removeProtocol(urlString)).toURL();
         }
     }
 

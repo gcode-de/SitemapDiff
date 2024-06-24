@@ -12,8 +12,10 @@ const defaultProps = {
     handleAddSite: mockHandleAddSite,
     handleDeleteSite: mockHandleDeleteSite,
     handleAbortForm: mockHandleAbortForm,
+    refreshSites: jest.fn(),
     data: null,
 };
+
 
 describe('SiteForm Component', () => {
     afterEach(() => {

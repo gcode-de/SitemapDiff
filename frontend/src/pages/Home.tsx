@@ -4,11 +4,11 @@ import {Box} from '@mui/material';
 import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
-import axios from "axios";
+import {createSite, deleteSite, updateSite} from '../api';
 
 type HomeProps = {
-    sites: Site[];
-    refreshSites: () => void;
+    sites: Site[],
+    refreshSites: () => void,
 }
 
 const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
@@ -24,58 +24,54 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         }
     }, [isAddSite, editSiteId]);
 
-    const handleAddSite = async (formData: Site | null | undefined): Promise<Site> => {
-        if (formData) {
-            setIsAddSite(false);
-            console.log(formData);
-            try {
-                const response = await axios.post<Site>('/api/sites', formData);
+    const handleAddSite = async (formData: Site | null | undefined) => {
+        try {
+            await createSite(formData);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error creating site:', error);
+        }
+    };
+
+    const handleEditSite = async (formData: Site | null | undefined) => {
+        try {
+            await updateSite(formData);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error updating site:', error);
+        }
+    };
+
+    const handleDeleteSite = async (siteId: string | undefined) => {
+        try {
+            if (window.confirm('Are you sure you want to delete this site?')) {
+                await deleteSite(siteId);
                 refreshSites();
                 handleAbortForm();
-            } catch (error) {
-                console.error('Error creating site:', error);
             }
-            return formData;
+        } catch (error) {
+            console.error('Error deleting site:', error);
         }
-        throw new Error("Form data is null or undefined");
-    }
-
-    const handleEditSite = (formData: Site | null | undefined): Site => {
-        if (formData) {
-            setEditSiteId(null);
-            console.log(formData);
-            return formData;
-        }
-        throw new Error("Form data is null or undefined");
-    }
-
-    const handleDeleteSite = (siteId: string | undefined): string => {
-        if (siteId) {
-            setIsAddSite(false);
-            setEditSiteId(null);
-            console.log("Delete Site:", siteId);
-            return siteId;
-        }
-        throw new Error("Site ID is null or undefined");
-    }
+    };
 
     const handleAbortForm = () => {
         setIsAddSite(false);
         setEditSiteId(null);
-    }
+    };
 
     const handleCheckUrl = (crawlId: string, url: string) => {
         console.log("Toggle checkbox:", crawlId, url);
-        return;
-    }
+    };
 
     const handleCrawlSite = (siteId: string) => {
         console.log("crawl ", siteId);
-    }
+    };
 
     const handleCrawlAllSites = () => {
         console.log("crawl all sites");
-    }
+    };
 
     return (
         <>
@@ -93,9 +89,12 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                           handleCrawlSite={handleCrawlSite}/>
                 {(isAddSite || editSiteId) &&
                     <Box sx={{flex: '0 0 auto'}}>
-                        <SiteForm data={sites?.find(site => site.id === editSiteId)} handleAddSite={handleAddSite}
-                                  handleEditSite={handleEditSite} handleDeleteSite={handleDeleteSite}
-                                  handleAbortForm={handleAbortForm} refreshSites={refreshSites}/>
+                        <SiteForm data={sites?.find(site => site.id === editSiteId)}
+                                  handleAddSite={handleAddSite}
+                                  handleEditSite={handleEditSite}
+                                  handleDeleteSite={handleDeleteSite}
+                                  handleAbortForm={handleAbortForm}
+                                  refreshSites={refreshSites}/>
                     </Box>
                 }
             </Box>
