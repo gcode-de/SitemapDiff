@@ -1,22 +1,18 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
-import {Site} from "../types/Site.tsx";
-import axios from "axios";
+import {Site} from '../types/Site';
+import axios from 'axios';
 
 type SiteFormProps = {
-    handleEditSite: (formData: Site | undefined | null) => Site,
-    handleAddSite: (formData: Site | undefined | null) => Site,
-    handleDeleteSite: (id: string | undefined) => string;
     handleAbortForm: () => void,
     data: Site | null | undefined,
+    refreshSites: () => void
 }
 
 const SiteForm: React.FC<SiteFormProps> = ({
-                                               handleEditSite,
-                                               handleAddSite,
-                                               handleDeleteSite,
                                                handleAbortForm,
-                                               data
+                                               data,
+                                               refreshSites
                                            }: SiteFormProps) => {
 
     const [formData, setFormData] = useState<Site | undefined | null>(data);
@@ -40,7 +36,6 @@ const SiteForm: React.FC<SiteFormProps> = ({
 
     const findSitemapsByBaseURL = async (url: string | undefined): Promise<string[]> => {
         if (!url) throw new Error("No URL provided.");
-        console.log("Find Sitemaps for", url);
 
         try {
             const response = await axios.get<string[]>('/api/sitemaps/find', {params: {baseURL: url}});
@@ -52,12 +47,37 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     };
 
-    // to be used later:
-    // function checkSitemaps(sitemaps: string[] | undefined) {
-    //     if (!sitemaps) throw new Error("No sitemaps provided.")
-    //     console.log("Check Sitemaps:", sitemaps)
-    //     return [sitemaps]
-    // }
+    const createSite = async (site: Site | undefined | null) => {
+        try {
+            const response = await axios.post<Site>('/api/sites', site);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error creating site:', error);
+        }
+    };
+
+    const updateSite = async (site: Site | undefined | null) => {
+        try {
+            const response = await axios.put<Site>(`/api/sites/${site?.id}`, site);
+            refreshSites();
+            handleAbortForm();
+        } catch (error) {
+            console.error('Error updating site:', error);
+        }
+    };
+
+    const deleteSite = async (id: string | undefined) => {
+        try {
+            if (window.confirm('Are you sure you want to delete this site?')) {
+                await axios.delete(`/api/sites/${id}`);
+                refreshSites();
+                handleAbortForm();
+            }
+        } catch (error) {
+            console.error('Error deleting site:', error);
+        }
+    };
 
     return (
         <Card key={'siteForm'} sx={{width: '360px'}}>
@@ -99,24 +119,19 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     } as Site)}
                 />
 
-                {/* to be used later:*/}
-                {/*<Button variant="contained" sx={{marginBottom: 2}} disabled={!formData?.sitemaps}*/}
-                {/*        onClick={() => checkSitemaps(formData?.sitemaps)}>Check Sitemaps</Button>*/}
-
                 <Box>
                     {data &&
-                        <Button variant="contained" color="error" sx={{marginRight: 2}} onClick={() => {
-                            handleDeleteSite(data?.id)
-                        }}>Delete</Button>
+                        <Button variant="contained" color="error" sx={{marginRight: 2}}
+                                onClick={() => deleteSite(data?.id)}>Delete</Button>
                     }
                     <Button variant="contained" color="secondary" sx={{marginRight: 2}}
                             onClick={handleAbortForm}>Cancel</Button>
                     {data ?
                         <Button variant="contained" color="primary"
-                                onClick={() => handleEditSite(formData)}
+                                onClick={() => updateSite(formData)}
                                 disabled={!isFormValid}>Save</Button> :
                         <Button variant="contained" color="primary"
-                                onClick={() => handleAddSite(formData)}
+                                onClick={() => createSite(formData)}
                                 disabled={!isFormValid}>Add</Button>
                     }
                 </Box>

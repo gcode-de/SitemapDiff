@@ -67,7 +67,7 @@ const App: React.FC = () => {
                 <Container sx={{width: '100%'}}>
                     <Header login={login} logout={logout} user={user}/>
                     <Routes>
-                        <Route path="/" element={<Home sites={sites}/>}/>
+                        <Route path="/" element={<Home sites={sites} refreshSites={loadSites}/>}/>
                     </Routes>
                 </Container>
             </ThemeProvider>

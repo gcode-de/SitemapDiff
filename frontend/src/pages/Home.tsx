@@ -7,9 +7,10 @@ import {Site} from "../types/Site.tsx";
 
 type HomeProps = {
     sites: Site[];
+    refreshSites: () => void;
 }
 
-const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
+const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
 
@@ -77,7 +78,7 @@ const Home: React.FC<HomeProps> = ({sites}: HomeProps) => {
                     <Box sx={{flex: '0 0 auto'}}>
                         <SiteForm data={sites?.find(site => site.id === editSiteId)} handleAddSite={handleAddSite}
                                   handleEditSite={handleEditSite} handleDeleteSite={handleDeleteSite}
-                                  handleAbortForm={handleAbortForm}/>
+                                  handleAbortForm={handleAbortForm} refreshSites={refreshSites}/>
                     </Box>
                 }
             </Box>
