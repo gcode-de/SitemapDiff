@@ -8,7 +8,6 @@ import java.util.List;
 
 @Document(collection = "sites")
 public class Site {
-
     @Id
     private String id;
     private String name;
@@ -18,6 +17,20 @@ public class Site {
     private String scrapeCron;
     private List<String> crawlIds;
     private List<Crawl> crawls;
+
+
+    public Site() {
+    }
+
+    public Site(String id, String name, String baseURL, List<String> sitemaps, String userId, String scrapeCron, List<String> crawlIds) {
+        this.id = id;
+        this.name = name;
+        this.baseURL = baseURL;
+        this.sitemaps = sitemaps;
+        this.userId = userId;
+        this.scrapeCron = scrapeCron;
+        this.crawlIds = crawlIds;
+    }
 
     // Getter und Setter
     public String getId() {

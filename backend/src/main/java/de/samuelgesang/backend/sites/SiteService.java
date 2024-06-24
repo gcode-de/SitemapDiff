@@ -27,11 +27,27 @@ public class SiteService {
     }
 
     public Optional<Site> getSiteById(String id) {
+        return siteRepository.findById(id);
+    }
+
+    public Site createSite(Site site) {
+        return siteRepository.save(site);
+    }
+
+    public Site updateSite(String id, Site site) {
+        if (siteRepository.existsById(id)) {
+            site.setId(id);
+            return siteRepository.save(site);
+        }
+        throw new IllegalArgumentException("Site not found");
+    }
+
+    public void deleteSite(String id, String userId) {
         Optional<Site> site = siteRepository.findById(id);
-        site.ifPresent(s -> {
-            List<Crawl> crawls = crawlRepository.findByIdIn(s.getCrawlIds());
-            s.setCrawls(crawls);
-        });
-        return site;
+        if (site.isPresent() && site.get().getUserId().equals(userId)) {
+            siteRepository.deleteById(id);
+        } else {
+            throw new IllegalArgumentException("Site not found or user unauthorized");
+        }
     }
 }
