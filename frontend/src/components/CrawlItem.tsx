@@ -20,9 +20,13 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
         return text;
     }
 
+    const {diffToPrevCrawl} = crawl;
+    const diffLengthLimit = 25;
+    const diffToPrevCrawlWithLimit = diffToPrevCrawl.slice(0, diffLengthLimit);
+
     return (
         <List sx={{padding: 0}}>
-            {crawl.diffToPrevCrawl.map((diff) => (
+            {diffToPrevCrawlWithLimit.map((diff) => (
                 <ListItem
                     key={diff.url}
                     secondaryAction={
@@ -76,6 +80,8 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                     </Box>
                 </ListItem>
             ))}
+            {diffToPrevCrawl.length > diffToPrevCrawlWithLimit.length &&
+                <ListItem>and {diffToPrevCrawl.length - diffToPrevCrawlWithLimit.length} more...</ListItem>}
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
                 <Typography variant='body2' sx={{lineHeight: '1', fontSize: '14px'}}>{crawl.finishedAt}</Typography>
