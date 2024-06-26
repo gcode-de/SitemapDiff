@@ -18,7 +18,6 @@ public class Site {
     private List<String> crawlIds;
     private List<Crawl> crawls;
 
-
     public Site() {
     }
 

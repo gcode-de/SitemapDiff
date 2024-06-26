@@ -7,17 +7,16 @@ import java.util.List;
 
 @Document(collection = "crawls")
 public class Crawl {
-
     @Id
     private String id;
     private String siteId;
-    private String cronId;
     private String finishedAt;
-    private List<String> content;
+    private List<String> urls;
     private String prevCrawlId;
     private List<CrawlDiffItem> diffToPrevCrawl;
 
-    // Getter und Setter
+    // getters and setters
+
     public String getId() {
         return id;
     }
@@ -34,14 +33,6 @@ public class Crawl {
         this.siteId = siteId;
     }
 
-    public String getCronId() {
-        return cronId;
-    }
-
-    public void setCronId(String cronId) {
-        this.cronId = cronId;
-    }
-
     public String getFinishedAt() {
         return finishedAt;
     }
@@ -50,12 +41,12 @@ public class Crawl {
         this.finishedAt = finishedAt;
     }
 
-    public List<String> getContent() {
-        return content;
+    public List<String> getUrls() {
+        return urls;
     }
 
-    public void setContent(List<String> content) {
-        this.content = content;
+    public void setUrls(List<String> urls) {
+        this.urls = urls;
     }
 
     public String getPrevCrawlId() {
