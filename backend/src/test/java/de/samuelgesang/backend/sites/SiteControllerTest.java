@@ -42,7 +42,7 @@ class SiteControllerTest {
         attributes.put("sub", "user123");
         when(oauth2User.getAttributes()).thenReturn(attributes);
 
-        List<Site> sites = List.of(new Site("1", "Google", "https://google.com", new ArrayList<>(), "user123", "string", new ArrayList<>()));
+        List<Site> sites = List.of(new Site("1", "Google", "https://google.com", "", "user123", "string", new ArrayList<>()));
         when(siteService.getAllSites("user123")).thenReturn(sites);
 
         List<Site> result = siteController.getAllSites(oauth2User);
@@ -57,7 +57,7 @@ class SiteControllerTest {
         attributes.put("sub", "user123");
         when(oauth2User.getAttributes()).thenReturn(attributes);
 
-        Site site = new Site("1", "Google", "https://google.com", new ArrayList<>(), "user123", "string", new ArrayList<>());
+        Site site = new Site("1", "Google", "https://google.com", "", "user123", "string", new ArrayList<>());
         when(siteService.createSite(any(Site.class))).thenReturn(site);
 
         Site result = siteController.createSite(site, oauth2User);
@@ -71,7 +71,7 @@ class SiteControllerTest {
         attributes.put("sub", "user123");
         when(oauth2User.getAttributes()).thenReturn(attributes);
 
-        Site site = new Site("1", "Google", "https://google.com", new ArrayList<>(), "user123", "string", new ArrayList<>());
+        Site site = new Site("1", "Google", "https://google.com", "", "user123", "string", new ArrayList<>());
         when(siteService.updateSite(eq("1"), any(Site.class))).thenReturn(site);
 
         Site result = siteController.updateSite("1", site, oauth2User);

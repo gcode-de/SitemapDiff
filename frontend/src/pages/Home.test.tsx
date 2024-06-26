@@ -9,7 +9,7 @@ describe('Home Component', () => {
             id: '1',
             name: 'Site 1',
             baseURL: 'https://site1.com',
-            sitemaps: [],
+            sitemap: '',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -18,7 +18,7 @@ describe('Home Component', () => {
             id: '2',
             name: 'Site 2',
             baseURL: 'https://site2.com',
-            sitemaps: [],
+            sitemap: '',
             userId: 'user2',
             scrapeCron: '',
             crawls: []

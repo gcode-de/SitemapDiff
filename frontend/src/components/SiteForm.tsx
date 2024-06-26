@@ -1,7 +1,7 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
 import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
 import {Site} from '../types/Site';
-import {fetchSitemaps} from '../api';
+import {fetchSitemap} from '../api';
 
 type SiteFormProps = {
     handleAbortForm: () => void,
@@ -34,7 +34,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
     };
 
     useEffect(() => {
-        if (formData?.name && formData?.baseURL && formData?.sitemaps && formData.sitemaps.length > 0) {
+        if (formData?.name && formData?.baseURL && formData?.sitemap) {
             setIsFormValid(true);
         } else {
             setIsFormValid(false);
@@ -47,21 +47,21 @@ const SiteForm: React.FC<SiteFormProps> = ({
         return pattern.test(url);
     };
 
-    const findSitemapsByBaseURL = async (url: string | undefined): Promise<string[]> => {
+    const findSitemapByBaseURL = async (url: string | undefined): Promise<string> => {
         if (!url) throw new Error("No URL provided.");
         if (!isURLValid(url)) {
             setError("URL must start with http:// or https://");
-            return [];
+            return "";
         }
 
         try {
-            const sitemaps = await fetchSitemaps(url);
-            setFormData({...formData, sitemaps} as Site);
+            const sitemap = await fetchSitemap(url);
+            setFormData({...formData, sitemap} as Site);
             setError(null);
-            return sitemaps;
+            return sitemap;
         } catch (error: any) {
-            setError(error.response ? error.response.data : "Error finding sitemaps");
-            throw new Error("Could not retrieve sitemaps.");
+            setError(error.response ? error.response.data : "Error finding sitemap");
+            throw new Error("Could not retrieve sitemap.");
         }
     };
 
@@ -102,19 +102,18 @@ const SiteForm: React.FC<SiteFormProps> = ({
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
                         disabled={!formData?.baseURL || !isURLValid(formData.baseURL)}
-                        onClick={() => findSitemapsByBaseURL(formData?.baseURL)}>Find Sitemaps</Button>
+                        onClick={() => findSitemapByBaseURL(formData?.baseURL)}>Find Sitemap</Button>
                 <TextField
-                    label="Enter Sitemap-URLs manually, one per line"
+                    label="Enter Sitemap-URL manually"
                     multiline
-                    rows={4}
                     fullWidth
                     sx={{marginBottom: 2}}
-                    name="sitemaps"
+                    name="sitemap"
                     required={true}
-                    value={(formData?.sitemaps || []).join('\n')}
+                    value={(formData?.sitemap || '')}
                     onChange={(e) => setFormData({
                         ...formData,
-                        sitemaps: e.target.value.split('\n')
+                        sitemap: e.target.value
                     } as Site)}
                 />
 

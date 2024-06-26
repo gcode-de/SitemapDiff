@@ -20,11 +20,15 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
         return text;
     }
 
+    const {diffToPrevCrawl} = crawl;
+    const diffLengthLimit = 25;
+    const diffToPrevCrawlWithLimit = diffToPrevCrawl?.slice(0, diffLengthLimit);
+
     return (
         <List sx={{padding: 0}}>
-            {crawl.diffToPrevCrawl.map((diff) => (
+            {diffToPrevCrawlWithLimit?.map((diff) => (
                 <ListItem
-                    key={diff.url}
+                    key={crawl.finishedAt + diff.url}
                     secondaryAction={
                         <IconButton edge="end" aria-label="mark as done" sx={{padding: '0px', minHeight: '24px'}}>
                             <Checkbox
@@ -70,12 +74,16 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                                 minWidth: 0
                             }}
                         >
-                            <ListItemText primary={truncateTextFromStart(diff.url, 40)}
+                            <ListItemText primary={truncateTextFromStart(diff.url, 36)}
                                           sx={{padding: '0px', margin: '0px', lineHeight: '1', fontSize: '14px'}}/>
                         </Box>
                     </Box>
                 </ListItem>
             ))}
+            {!diffToPrevCrawl?.length &&
+                <ListItem>no changes</ListItem>}
+            {diffToPrevCrawl?.length > diffToPrevCrawlWithLimit?.length &&
+                <ListItem>and {diffToPrevCrawl?.length - diffToPrevCrawlWithLimit?.length} more...</ListItem>}
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
                 <Typography variant='body2' sx={{lineHeight: '1', fontSize: '14px'}}>{crawl.finishedAt}</Typography>

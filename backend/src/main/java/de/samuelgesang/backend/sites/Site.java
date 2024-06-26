@@ -12,7 +12,7 @@ public class Site {
     private String id;
     private String name;
     private String baseURL;
-    private List<String> sitemaps;
+    private String sitemap;
     private String userId;
     private String scrapeCron;
     private List<String> crawlIds;
@@ -22,11 +22,11 @@ public class Site {
     public Site() {
     }
 
-    public Site(String id, String name, String baseURL, List<String> sitemaps, String userId, String scrapeCron, List<String> crawlIds) {
+    public Site(String id, String name, String baseURL, String sitemap, String userId, String scrapeCron, List<String> crawlIds) {
         this.id = id;
         this.name = name;
         this.baseURL = baseURL;
-        this.sitemaps = sitemaps;
+        this.sitemap = sitemap;
         this.userId = userId;
         this.scrapeCron = scrapeCron;
         this.crawlIds = crawlIds;
@@ -57,12 +57,12 @@ public class Site {
         this.baseURL = baseURL;
     }
 
-    public List<String> getSitemaps() {
-        return sitemaps;
+    public String getSitemap() {
+        return sitemap;
     }
 
-    public void setSitemaps(List<String> sitemaps) {
-        this.sitemaps = sitemaps;
+    public void setSitemap(String sitemap) {
+        this.sitemap = sitemap;
     }
 
     public String getUserId() {

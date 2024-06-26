@@ -28,7 +28,7 @@ describe('SiteForm Component', () => {
         expect(screen.getByText(/Add Site/i)).toBeInTheDocument();
         expect(screen.getByLabelText(/Title/i)).toBeInTheDocument();
         expect(screen.getByRole('textbox', {name: 'URL'})).toBeInTheDocument();
-        expect(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Enter Sitemap-URL manually/i)).toBeInTheDocument();
     });
 
 
@@ -37,7 +37,7 @@ describe('SiteForm Component', () => {
             id: '1',
             name: 'Test Site',
             baseURL: 'https://testsite.com',
-            sitemaps: ['https://testsite.com/sitemap.xml'],
+            sitemap: 'https://testsite.com/sitemap.xml',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -56,7 +56,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: 'New Site'}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URL manually/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
 
         expect(screen.getByRole('button', {name: /add/i})).toBeEnabled();
     });
@@ -66,7 +66,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: ''}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: ''}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: ''}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URL manually/i), {target: {value: ''}});
 
         expect(screen.getByRole('button', {name: /add/i})).toBeDisabled();
     });
@@ -76,7 +76,7 @@ describe('SiteForm Component', () => {
 
         fireEvent.change(screen.getByLabelText(/Title/i), {target: {value: 'New Site'}});
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
-        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URLs manually, one per line/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
+        fireEvent.change(screen.getByLabelText(/Enter Sitemap-URL manually/i), {target: {value: 'https://newsite.com/sitemap.xml'}});
 
         fireEvent.click(screen.getByRole('button', {name: /add/i}));
 
@@ -88,7 +88,7 @@ describe('SiteForm Component', () => {
             id: '1',
             name: 'Test Site',
             baseURL: 'https://testsite.com',
-            sitemaps: ['https://testsite.com/sitemap.xml'],
+            sitemap: 'https://testsite.com/sitemap.xml',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -109,7 +109,7 @@ describe('SiteForm Component', () => {
             id: '1',
             name: 'Test Site',
             baseURL: 'https://testsite.com',
-            sitemaps: ['https://testsite.com/sitemap.xml'],
+            sitemap: 'https://testsite.com/sitemap.xml',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -130,18 +130,18 @@ describe('SiteForm Component', () => {
         expect(mockHandleAbortForm).toHaveBeenCalled();
     });
 
-    test('disables Find Sitemaps button if URL is empty', () => {
+    test('disables Find Sitemap button if URL is empty', () => {
         render(<SiteForm {...defaultProps} />);
 
-        expect(screen.getByRole('button', {name: /find sitemaps/i})).toBeDisabled();
+        expect(screen.getByRole('button', {name: /find sitemap/i})).toBeDisabled();
     });
 
-    test('enables Find Sitemaps button if URL is provided', () => {
+    test('enables Find Sitemap button if URL is provided', () => {
         render(<SiteForm {...defaultProps} />);
 
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
 
-        expect(screen.getByRole('button', {name: /find sitemaps/i})).toBeEnabled();
+        expect(screen.getByRole('button', {name: /find sitemap/i})).toBeEnabled();
     });
 
 });

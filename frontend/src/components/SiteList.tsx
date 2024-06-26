@@ -21,10 +21,7 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                         <Typography variant="h5">{site.name}</Typography>
                         <Tooltip title={
                             <Box>
-                                Sitemaps:
-                                {site.sitemaps?.map((sitemap, index) => (
-                                    <Typography key={index} variant='caption' display='block'>{sitemap}</Typography>
-                                ))}
+                                <Typography variant='caption' display='block'>Sitemap: {site.sitemap}</Typography>
                             </Box>
                         } arrow>
                             <Typography variant='caption' sx={{cursor: 'pointer'}}>
