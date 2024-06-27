@@ -3,15 +3,17 @@ import {Box, Button, Card, CardContent, Tooltip, Typography} from '@mui/material
 import SiteItem from './SiteItem';
 
 import {Site} from "../types/Site.tsx";
+import LoadingSpinner from "../assets/loadingSpinner.tsx";
 
 type SiteListProps = {
     sites: Site[];
     setEditSiteId: (siteId: string) => void;
     handleCheckUrl: (crawlId: string, url: string) => void;
     handleCrawlSite: (siteId: string) => void;
+    isCrawling: string[];
 }
 
-const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl, handleCrawlSite}) => {
+const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl, handleCrawlSite, isCrawling}) => {
     return (
         <Box sx={{display: 'flex', justifyContent: 'space-around', padding: 0, margin: 0, gap: 2, overflow: 'visible'}}>
             {sites?.map((site) => (
@@ -36,6 +38,7 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                         padding: 2
                     }}>
                         <Button variant="contained" onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
+                        {isCrawling.some(e => e === "all" || e === site.id) && <LoadingSpinner/>}
                         <Button variant="contained" onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>
                     </Box>
                 </Card>

@@ -1,6 +1,7 @@
 package de.samuelgesang.backend.sitemaps;
 
 import de.samuelgesang.backend.crawls.Crawl;
+import de.samuelgesang.backend.crawls.CrawlDiffItem;
 import de.samuelgesang.backend.crawls.CrawlRepository;
 import de.samuelgesang.backend.sites.Site;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,9 +10,7 @@ import org.springframework.stereotype.Service;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -95,7 +94,16 @@ public class SitemapService {
         // Set prevCrawlId if there was a previous crawl
         List<String> crawlIds = site.getCrawlIds();
         if (!crawlIds.isEmpty()) {
-            crawl.setPrevCrawlId(crawlIds.getLast());
+            String prevCrawlId = crawlIds.get(crawlIds.size() - 1);
+            crawl.setPrevCrawlId(prevCrawlId);
+
+            // Fetch previous crawl
+            Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
+            if (prevCrawl != null) {
+                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevCrawl.getUrls());
+                System.out.println("diffToPrevCrawl: " + diffToPrevCrawl);
+                crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+            }
         }
 
         // Set finishedAt with the current timestamp in Zulu format
@@ -104,6 +112,36 @@ public class SitemapService {
         return crawl;
     }
 
+    private List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
+        Set<String> currentUrlSet = new HashSet<>(currentUrls);
+        Set<String> previousUrlSet = new HashSet<>(previousUrls);
+
+        List<CrawlDiffItem> diff = new ArrayList<>();
+
+        // URLs added in current crawl
+        for (String url : currentUrlSet) {
+            if (!previousUrlSet.contains(url)) {
+                CrawlDiffItem item = new CrawlDiffItem();
+                item.setAction("add");
+                item.setUrl(url);
+                item.setChecked(false);
+                diff.add(item);
+            }
+        }
+
+        // URLs removed in current crawl
+        for (String url : previousUrlSet) {
+            if (!currentUrlSet.contains(url)) {
+                CrawlDiffItem item = new CrawlDiffItem();
+                item.setAction("remove");
+                item.setUrl(url);
+                item.setChecked(false);
+                diff.add(item);
+            }
+        }
+
+        return diff;
+    }
 
     private void fetchUrlsFromSitemap(String sitemapUrl, List<String> urls) throws Exception {
         System.out.println("Fetching content from URL: " + sitemapUrl);
@@ -127,7 +165,7 @@ public class SitemapService {
         while (locMatcher.find()) {
             String url = locMatcher.group(1).trim();
             urls.add(url);  // Add the extracted URL to the list
-            System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
+//            System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
         }
 
         // Pattern to match nested <sitemap> tags and their <loc> tags

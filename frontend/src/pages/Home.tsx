@@ -5,6 +5,8 @@ import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
+import Typography from "@mui/material/Typography";
+import LoadingSpinner from '../assets/loadingSpinner.tsx'
 
 type HomeProps = {
     sites: Site[],
@@ -14,6 +16,7 @@ type HomeProps = {
 const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
+    const [isCrawling, setIsCrawling] = useState<string[]>([]);
 
     useEffect(() => {
         if (isAddSite || editSiteId) {
@@ -66,12 +69,30 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     };
 
     const handleCrawlSite = (siteId: string) => {
+        setIsCrawling(prevState => [...prevState, siteId])
         console.log("crawl ", siteId);
     };
 
     const handleCrawlAllSites = () => {
+        setIsCrawling(["all"])
         console.log("crawl all sites");
     };
+
+    if (!sites || !sites.length) {
+        return <Box id="scrollContainer" sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            gap: 2,
+            paddingTop: 2,
+            height: '80vh',
+            width: '95vw',
+            overflowX: 'auto'
+        }}>
+            <Typography variant={'h4'}>Loading ...</Typography>
+            <LoadingSpinner/>
+        </Box>
+    }
 
     return (
         <>
@@ -86,7 +107,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                 overflowX: 'auto'
             }}>
                 <SiteList sites={sites} setEditSiteId={setEditSiteId} handleCheckUrl={handleCheckUrl}
-                          handleCrawlSite={handleCrawlSite}/>
+                          handleCrawlSite={handleCrawlSite} isCrawling={isCrawling}/>
                 {(isAddSite || editSiteId) &&
                     <Box sx={{flex: '0 0 auto'}}>
                         <SiteForm data={sites?.find(site => site.id === editSiteId)}
