@@ -1,8 +1,9 @@
 import React, {useState} from 'react';
-import {Box, Checkbox, IconButton, List, ListItem, ListItemText, Typography} from '@mui/material';
+import {Box, Button, Checkbox, Divider, IconButton, List, ListItem, ListItemText, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
-
+import FileCopyIcon from '@mui/icons-material/FileCopy';
+import DownloadIcon from '@mui/icons-material/Download';
 import {Crawl} from "../types/Crawl.tsx";
 
 type SiteItemProps = {
@@ -32,6 +33,27 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
         return `${year}-${month}-${day}, ${hours}:${minutes} Uhr`;
     }
 
+    const handleCopyUrls = () => {
+        const urlsToCopy = diffToPrevCrawl.map(diff => `${baseURL}${diff.url}`).join('\n');
+        navigator.clipboard.writeText(urlsToCopy).then(() => {
+            console.log('URLs copied to clipboard');
+        }).catch(err => {
+            console.error('Failed to copy URLs: ', err);
+        });
+    };
+
+    const handleDownloadCsv = () => {
+        const csvContent = "data:text/csv;charset=utf-8,"
+            + diffToPrevCrawl.map(diff => `${diff.action},${baseURL}${diff.url}`).join('\n');
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", `crawl_${crawl.id}_diff.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 25;
     const [diffToPrevCrawlToDisplay, setDiffToPrevCrawlToDisplay] = useState(diffToPrevCrawl?.slice(0, diffLengthLimit));
@@ -39,7 +61,6 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
     return (
         <List sx={{padding: 0}}>
             {diffToPrevCrawlToDisplay?.map((diff) => (
-
                 <ListItem
                     key={crawl.finishedAt + diff.url}
                     secondaryAction={
@@ -105,6 +126,16 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                                   textDecoration: 'underline',
                               }
                           }}>and {diffToPrevCrawl?.length - diffToPrevCrawlToDisplay?.length} more...</ListItem>}
+
+            <Divider/>
+            <Box sx={{display: 'flex', justifyContent: 'space-between', padding: '8px 0'}}>
+                <Button variant="contained" color="primary" onClick={handleCopyUrls} startIcon={<FileCopyIcon/>}>
+                    Copy URLs
+                </Button>
+                <Button variant="contained" color="primary" onClick={handleDownloadCsv} startIcon={<DownloadIcon/>}>
+                    Download CSV
+                </Button>
+            </Box>
 
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
