@@ -94,7 +94,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                     </Box>
                 </ListItem>
             ))}
-            {!diffToPrevCrawl?.length &&
+            {!diffToPrevCrawl?.length && crawl.prevCrawlId && //show only when there are previous crawls but there are no changes
                 <ListItem>no changes</ListItem>}
             {diffToPrevCrawl?.length > diffToPrevCrawlWithLimit?.length &&
                 <ListItem>and {diffToPrevCrawl?.length - diffToPrevCrawlWithLimit?.length} more...</ListItem>}

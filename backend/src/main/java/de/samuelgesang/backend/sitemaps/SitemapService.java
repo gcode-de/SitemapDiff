@@ -24,6 +24,8 @@ public class SitemapService {
         String[] protocols = {"https://", "http://"};
         String[] subdomains = {"www.", ""};
 
+        baseURL = removeTrailingSlash(baseURL);
+
         for (String protocol : protocols) {
             for (String subdomain : subdomains) {
                 String sitemapUrl = protocol + subdomain + removeProtocol(baseURL) + "/sitemap.xml";
@@ -74,6 +76,14 @@ public class SitemapService {
             return urlString.substring(7);
         } else if (urlString.startsWith("https://")) {
             return urlString.substring(8);
+        } else {
+            return urlString;
+        }
+    }
+
+    private String removeTrailingSlash(String urlString) {
+        if (urlString.endsWith("/")) {
+            return urlString.substring(0, urlString.length() - 1);
         } else {
             return urlString;
         }
@@ -165,7 +175,7 @@ public class SitemapService {
         while (locMatcher.find()) {
             String url = locMatcher.group(1).trim();
             urls.add(url);  // Add the extracted URL to the list
-//            System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
+            // System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
         }
 
         // Pattern to match nested <sitemap> tags and their <loc> tags
