@@ -39,7 +39,8 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                     }}>
                         <Button variant="contained" onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
                         {isCrawling.some(e => e === "all" || e === site.id) && <LoadingSpinner/>}
-                        <Button variant="contained" onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>
+                        <Button variant="contained" disabled={isCrawling.some(e => e === "all" || e === site.id)}
+                                onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>
                     </Box>
                 </Card>
             ))}

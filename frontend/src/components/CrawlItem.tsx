@@ -20,6 +20,18 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
         return text;
     }
 
+    function formatTimestamp(timestamp: string) {
+        const date = new Date(timestamp);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}, ${hours}:${minutes} Uhr`;
+    }
+
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 25;
 
@@ -57,7 +69,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                         )}
                         <Box
                             component="a"
-                            href={`${baseURL}${diff.url}`}
+                            href={diff.url}
                             target="_blank"
                             rel="noopener noreferrer"
                             title={`${baseURL}${diff.url}`} // Full URL on hover
@@ -89,7 +101,11 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
 
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
-                <Typography variant='body2' sx={{lineHeight: '1', fontSize: '14px'}}>{crawl.finishedAt}</Typography>
+                <Typography variant='body2'
+                            sx={{
+                                lineHeight: '1',
+                                fontSize: '14px'
+                            }}>{formatTimestamp(crawl.finishedAt)}</Typography>
             </ListItem>
         </List>
     );

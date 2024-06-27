@@ -4,6 +4,7 @@ import de.samuelgesang.backend.crawls.Crawl;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Document(collection = "sites")
@@ -15,7 +16,7 @@ public class Site {
     private String sitemap;
     private String userId;
     private String scrapeCron;
-    private List<String> crawlIds;
+    private List<String> crawlIds = new ArrayList<>();
     private List<Crawl> crawls;
 
     public Site() {

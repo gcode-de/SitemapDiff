@@ -7,6 +7,7 @@ import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
 import Typography from "@mui/material/Typography";
 import LoadingSpinner from '../assets/loadingSpinner.tsx'
+import axios from 'axios';
 
 type HomeProps = {
     sites: Site[],
@@ -29,9 +30,10 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
 
     const handleAddSite = async (formData: Site | null | undefined) => {
         try {
-            await createSite(formData);
-            refreshSites();
+            const createdSite = await createSite(formData);
             handleAbortForm();
+            refreshSites();
+            await handleCrawlSite(createdSite.id)
         } catch (error) {
             console.error('Error creating site:', error);
         }
@@ -68,14 +70,40 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         console.log("Toggle checkbox:", crawlId, url);
     };
 
-    const handleCrawlSite = (siteId: string) => {
-        setIsCrawling(prevState => [...prevState, siteId])
+    const handleCrawlSite = async (siteId: string) => {
+        setIsCrawling(prevState => [...prevState, siteId]);
         console.log("crawl ", siteId);
+
+        try {
+            const response = await axios.get(`/api/sites/crawl/${siteId}`);
+            console.log("Crawl site response:", response.data);
+        } catch (error) {
+            console.error("Error crawling site:", error);
+        } finally {
+            setIsCrawling(prevState => prevState.filter(e => e !== siteId));
+            refreshSites();
+        }
     };
 
-    const handleCrawlAllSites = () => {
-        setIsCrawling(["all"])
-        console.log("crawl all sites");
+    // const handleCrawlAllSites = async () => {
+    //     setIsCrawling(["all"]);
+    //     console.log("crawl all sites");
+    //
+    //     try {
+    //         const response = await axios.get('/api/sites/crawl/all');
+    //         console.log("Crawl all sites response:", response.data);
+    //     } catch (error) {
+    //         console.error("Error crawling all sites:", error);
+    //     } finally {
+    //         setIsCrawling([]);
+    //         refreshSites();
+    //     }
+    // };
+
+    const handleCrawlAllSites = async () => {
+        sites.forEach((site: Site) => {
+            handleCrawlSite(site.id)
+        })
     };
 
     if (!sites || !sites.length) {
@@ -119,7 +147,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                     </Box>
                 }
             </Box>
-            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites}/>
+            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={isCrawling}/>
         </>
     );
 };
