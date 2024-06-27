@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SiteService {
@@ -28,11 +29,8 @@ public class SiteService {
     private CrawlService crawlService;
 
     public List<Site> getAllSites(String userId) {
+        System.out.println("Getting all sites for user " + userId);
         List<Site> sites = siteRepository.findByUserId(userId);
-        sites.forEach(site -> {
-            List<Crawl> crawls = crawlRepository.findByIdIn(site.getCrawlIds());
-            site.setCrawls(crawls);
-        });
         return sites;
     }
 
@@ -55,7 +53,6 @@ public class SiteService {
     public void deleteSite(String id, String userId) {
         Optional<Site> site = siteRepository.findById(id);
         if (site.isPresent() && site.get().getUserId().equals(userId)) {
-            // Delete all crawls associated with the site
             crawlService.deleteCrawlsBySiteId(id);
             siteRepository.deleteById(id);
         } else {
@@ -69,32 +66,35 @@ public class SiteService {
 
     public Site findByIdAndUser(String siteId, String userId) {
         Optional<Site> site = siteRepository.findByIdAndUserId(siteId, userId);
-        return site.isPresent() ? site.get() : null;
+        return site.orElse(null);
     }
 
-    public Site save(Site site) {
-        return siteRepository.save(site);
+    public void save(Site site) {
+        siteRepository.save(site);
     }
 
-    public void crawlAllSites(String userId) throws Exception {
-        List<Site> sites = findByUser(userId);
-        for (Site site : sites) {
-            Crawl crawl = sitemapService.crawlSite(site);
-            crawlRepository.save(crawl);
-            site.getCrawlIds().add(crawl.getId());
-            save(site);
-        }
+    public List<SiteWithCrawlsDTO> getAllSitesWithCrawls(String userId) {
+        List<Site> sites = siteRepository.findByUserId(userId);
+        return sites.stream().map(this::mapToDTO).collect(Collectors.toList());
     }
 
-    public void crawlSiteById(String siteId, String userId) throws Exception {
-        Site site = findByIdAndUser(siteId, userId);
-        if (site == null) {
-            throw new IllegalArgumentException("Site does not belong to the user.");
-        }
+    public Optional<SiteWithCrawlsDTO> getSiteWithCrawlsByIdAndUser(String siteId, String userId) {
+        Optional<Site> site = siteRepository.findByIdAndUserId(siteId, userId);
+        return site.map(this::mapToDTO);
+    }
 
-        Crawl crawl = sitemapService.crawlSite(site);
-        crawlRepository.save(crawl);
-        site.getCrawlIds().add(crawl.getId());
-        save(site);
+    private SiteWithCrawlsDTO mapToDTO(Site site) {
+        SiteWithCrawlsDTO dto = new SiteWithCrawlsDTO();
+        dto.setId(site.getId());
+        dto.setName(site.getName());
+        dto.setBaseURL(site.getBaseURL());
+        dto.setSitemap(site.getSitemap());
+        dto.setUserId(site.getUserId());
+        dto.setScrapeCron(site.getScrapeCron());
+        dto.setCrawlIds(site.getCrawlIds());
+        List<Crawl> crawls = crawlRepository.findByIdIn(site.getCrawlIds());
+        System.out.println("Crawls found: " + crawls.size());
+        dto.setCrawls(crawls);
+        return dto;
     }
 }

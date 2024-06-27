@@ -1,35 +1,18 @@
 package de.samuelgesang.backend.sites;
 
 import de.samuelgesang.backend.crawls.Crawl;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
 import java.util.List;
 
-@Document(collection = "sites")
-public class Site {
-    @Id
+public class SiteWithCrawlsDTO {
     private String id;
     private String name;
     private String baseURL;
     private String sitemap;
     private String userId;
     private String scrapeCron;
-    private List<String> crawlIds = new ArrayList<>();
-
-    public Site() {
-    }
-
-    public Site(String id, String name, String baseURL, String sitemap, String userId, String scrapeCron, List<String> crawlIds) {
-        this.id = id;
-        this.name = name;
-        this.baseURL = baseURL;
-        this.sitemap = sitemap;
-        this.userId = userId;
-        this.scrapeCron = scrapeCron;
-        this.crawlIds = crawlIds;
-    }
+    private List<String> crawlIds;
+    private List<Crawl> crawls;
 
     // Getter und Setter
     public String getId() {
@@ -86,5 +69,13 @@ public class Site {
 
     public void setCrawlIds(List<String> crawlIds) {
         this.crawlIds = crawlIds;
+    }
+
+    public List<Crawl> getCrawls() {
+        return crawls;
+    }
+
+    public void setCrawls(List<Crawl> crawls) {
+        this.crawls = crawls;
     }
 }

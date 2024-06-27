@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class SitemapService {
@@ -93,13 +94,11 @@ public class SitemapService {
         Crawl crawl = new Crawl();
         crawl.setSiteId(site.getId());
 
-        List<String> urls = new ArrayList<>();
+        List<String> currentUrls = new ArrayList<>();
         String sitemapUrl = site.getSitemap();
         System.out.println("Starting to fetch URLs from sitemap for site: " + sitemapUrl);
-        fetchUrlsFromSitemap(sitemapUrl, urls);
-        System.out.println("Finished fetching URLs. Total URLs found: " + urls.size());
-
-        crawl.setUrls(urls);
+        fetchUrlsFromSitemap(sitemapUrl, currentUrls);
+        System.out.println("Finished fetching URLs. Total URLs found: " + currentUrls.size());
 
         // Set prevCrawlId if there was a previous crawl
         List<String> crawlIds = site.getCrawlIds();
@@ -110,7 +109,8 @@ public class SitemapService {
             // Fetch previous crawl
             Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
             if (prevCrawl != null) {
-                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevCrawl.getUrls());
+                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(currentUrls, prevCrawl.getDiffToPrevCrawl().stream()
+                        .map(CrawlDiffItem::getUrl).collect(Collectors.toList()));
                 System.out.println("diffToPrevCrawl: " + diffToPrevCrawl);
                 crawl.setDiffToPrevCrawl(diffToPrevCrawl);
             }
@@ -175,7 +175,6 @@ public class SitemapService {
         while (locMatcher.find()) {
             String url = locMatcher.group(1).trim();
             urls.add(url);  // Add the extracted URL to the list
-            // System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
         }
 
         // Pattern to match nested <sitemap> tags and their <loc> tags
@@ -184,10 +183,10 @@ public class SitemapService {
         while (sitemapMatcher.find()) {
             try {
                 String nestedSitemapUrl = sitemapMatcher.group(1).trim();
-                System.out.println("Found nested sitemap URL: " + nestedSitemapUrl);  // Debug output to check nested sitemap URLs
+                System.out.println("Found nested sitemap URL: " + nestedSitemapUrl);
                 fetchUrlsFromSitemap(nestedSitemapUrl, urls);
             } catch (Exception e) {
-                e.printStackTrace();  // Handle the exception or log it
+                e.printStackTrace();
             }
         }
     }

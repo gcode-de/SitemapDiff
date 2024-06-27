@@ -49,8 +49,6 @@ public class CrawlService {
 
     public void deleteCrawlsBySiteId(String siteId) {
         List<Crawl> crawls = crawlRepository.findBySiteId(siteId);
-        for (Crawl crawl : crawls) {
-            crawlRepository.delete(crawl);
-        }
+        crawlRepository.deleteAll(crawls);
     }
 }

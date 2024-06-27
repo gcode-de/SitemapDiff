@@ -11,7 +11,6 @@ public class Crawl {
     private String id;
     private String siteId;
     private String finishedAt;
-    private List<String> urls;
     private String prevCrawlId;
     private List<CrawlDiffItem> diffToPrevCrawl;
 
@@ -39,14 +38,6 @@ public class Crawl {
 
     public void setFinishedAt(String finishedAt) {
         this.finishedAt = finishedAt;
-    }
-
-    public List<String> getUrls() {
-        return urls;
-    }
-
-    public void setUrls(List<String> urls) {
-        this.urls = urls;
     }
 
     public String getPrevCrawlId() {

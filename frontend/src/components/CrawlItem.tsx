@@ -56,7 +56,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
     };
 
     const {diffToPrevCrawl} = crawl;
-    const diffLengthLimit = 25;
+    const diffLengthLimit = 20;
     const [diffToPrevCrawlToDisplay, setDiffToPrevCrawlToDisplay] = useState(diffToPrevCrawl?.slice(0, diffLengthLimit));
 
     return (
