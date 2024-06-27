@@ -42,8 +42,8 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const handleEditSite = async (formData: Site | null | undefined) => {
         try {
             await updateSite(formData);
-            refreshSites();
             handleAbortForm();
+            refreshSites();
         } catch (error) {
             console.error('Error updating site:', error);
         }
@@ -53,8 +53,8 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         try {
             if (window.confirm('Are you sure you want to delete this site?')) {
                 await deleteSite(siteId);
-                refreshSites();
                 handleAbortForm();
+                refreshSites();
             }
         } catch (error) {
             console.error('Error deleting site:', error);
@@ -84,21 +84,6 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
             refreshSites();
         }
     };
-
-    // const handleCrawlAllSites = async () => {
-    //     setIsCrawling(["all"]);
-    //     console.log("crawl all sites");
-    //
-    //     try {
-    //         const response = await axios.get('/api/sites/crawl/all');
-    //         console.log("Crawl all sites response:", response.data);
-    //     } catch (error) {
-    //         console.error("Error crawling all sites:", error);
-    //     } finally {
-    //         setIsCrawling([]);
-    //         refreshSites();
-    //     }
-    // };
 
     const handleCrawlAllSites = async () => {
         sites.forEach((site: Site) => {
