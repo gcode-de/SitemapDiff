@@ -6,7 +6,7 @@ import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
 import Typography from "@mui/material/Typography";
-import LoadingSpinner from '../assets/loadingSpinner.tsx'
+import LoadingSpinner from '../assets/loadingSpinner'
 import axios from 'axios';
 
 type HomeProps = {

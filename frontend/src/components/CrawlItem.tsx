@@ -115,8 +115,6 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                     </Box>
                 </ListItem>
             ))}
-            {!diffToPrevCrawl?.length && crawl.prevCrawlId && //show only when there are previous crawls but there are no changes
-                <ListItem>no changes</ListItem>}
             {diffToPrevCrawl?.length > diffToPrevCrawlToDisplay?.length &&
                 <ListItem onClick={() => {
                     setDiffToPrevCrawlToDisplay(diffToPrevCrawl);
@@ -128,15 +126,23 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                               }
                           }}>and {diffToPrevCrawl?.length - diffToPrevCrawlToDisplay?.length} more...</ListItem>}
 
-            <Divider/>
-            <Box sx={{display: 'flex', justifyContent: 'space-between', padding: '8px 0'}}>
-                <Button variant="contained" color="primary" onClick={handleCopyUrls} startIcon={<FileCopyIcon/>}>
-                    Copy URLs
-                </Button>
-                <Button variant="contained" color="primary" onClick={handleDownloadCsv} startIcon={<DownloadIcon/>}>
-                    Download CSV
-                </Button>
-            </Box>
+            {crawl.prevCrawlId && !diffToPrevCrawl?.length && //show only when there are previous crawls but there are no changes
+                <ListItem sx={{
+                    lineHeight: '0.5',
+                }}>- no changes -</ListItem>}
+
+            {diffToPrevCrawl?.length > 0 &&
+                <>
+                    <Divider/>
+                    <Box sx={{display: 'flex', justifyContent: 'space-between', padding: '8px 0'}}>
+                        <Button variant="text" color="primary" onClick={handleCopyUrls} startIcon={<FileCopyIcon/>}>
+                            Copy URLs
+                        </Button>
+                        <Button variant="text" color="primary" onClick={handleDownloadCsv} startIcon={<DownloadIcon/>}>
+                            Download CSV
+                        </Button>
+                    </Box>
+                </>}
 
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
