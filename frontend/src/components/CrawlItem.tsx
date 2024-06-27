@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Box, Checkbox, IconButton, List, ListItem, ListItemText, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -34,12 +34,11 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
 
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 25;
-
-    const diffToPrevCrawlWithLimit = diffToPrevCrawl?.slice(0, diffLengthLimit);
+    const [diffToPrevCrawlToDisplay, setDiffToPrevCrawlToDisplay] = useState(diffToPrevCrawl?.slice(0, diffLengthLimit));
 
     return (
         <List sx={{padding: 0}}>
-            {diffToPrevCrawlWithLimit?.map((diff) => (
+            {diffToPrevCrawlToDisplay?.map((diff) => (
 
                 <ListItem
                     key={crawl.finishedAt + diff.url}
@@ -96,8 +95,16 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
             ))}
             {!diffToPrevCrawl?.length && crawl.prevCrawlId && //show only when there are previous crawls but there are no changes
                 <ListItem>no changes</ListItem>}
-            {diffToPrevCrawl?.length > diffToPrevCrawlWithLimit?.length &&
-                <ListItem>and {diffToPrevCrawl?.length - diffToPrevCrawlWithLimit?.length} more...</ListItem>}
+            {diffToPrevCrawl?.length > diffToPrevCrawlToDisplay?.length &&
+                <ListItem onClick={() => {
+                    setDiffToPrevCrawlToDisplay(diffToPrevCrawl);
+                }}
+                          sx={{
+                              cursor: 'pointer',
+                              '&:hover': {
+                                  textDecoration: 'underline',
+                              }
+                          }}>and {diffToPrevCrawl?.length - diffToPrevCrawlToDisplay?.length} more...</ListItem>}
 
             <ListItem
                 sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>

@@ -2,8 +2,10 @@ package de.samuelgesang.backend.sites;
 
 import de.samuelgesang.backend.crawls.Crawl;
 import de.samuelgesang.backend.crawls.CrawlRepository;
+import de.samuelgesang.backend.crawls.CrawlService;
 import de.samuelgesang.backend.sitemaps.SitemapService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +22,10 @@ public class SiteService {
 
     @Autowired
     private SitemapService sitemapService;
+
+    @Autowired
+    @Lazy
+    private CrawlService crawlService;
 
     public List<Site> getAllSites(String userId) {
         List<Site> sites = siteRepository.findByUserId(userId);
@@ -49,6 +55,8 @@ public class SiteService {
     public void deleteSite(String id, String userId) {
         Optional<Site> site = siteRepository.findById(id);
         if (site.isPresent() && site.get().getUserId().equals(userId)) {
+            // Delete all crawls associated with the site
+            crawlService.deleteCrawlsBySiteId(id);
             siteRepository.deleteById(id);
         } else {
             throw new IllegalArgumentException("Site not found or user unauthorized");

@@ -4,6 +4,7 @@ import de.samuelgesang.backend.sitemaps.SitemapService;
 import de.samuelgesang.backend.sites.Site;
 import de.samuelgesang.backend.sites.SiteService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,14 +12,18 @@ import java.util.List;
 @Service
 public class CrawlService {
 
+    private final SitemapService sitemapService;
+    private final CrawlRepository crawlRepository;
+
     @Autowired
+    @Lazy
     private SiteService siteService;
 
     @Autowired
-    private SitemapService sitemapService;
-
-    @Autowired
-    private CrawlRepository crawlRepository;
+    public CrawlService(SitemapService sitemapService, CrawlRepository crawlRepository) {
+        this.sitemapService = sitemapService;
+        this.crawlRepository = crawlRepository;
+    }
 
     public void crawlAllSites(String userId) throws Exception {
         List<Site> sites = siteService.findByUser(userId);
@@ -40,5 +45,12 @@ public class CrawlService {
         crawlRepository.save(crawl);
         site.getCrawlIds().add(crawl.getId());
         siteService.save(site);
+    }
+
+    public void deleteCrawlsBySiteId(String siteId) {
+        List<Crawl> crawls = crawlRepository.findBySiteId(siteId);
+        for (Crawl crawl : crawls) {
+            crawlRepository.delete(crawl);
+        }
     }
 }
