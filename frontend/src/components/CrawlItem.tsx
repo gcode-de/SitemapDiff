@@ -34,7 +34,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
     }
 
     const handleCopyUrls = () => {
-        const urlsToCopy = diffToPrevCrawl.map(diff => `${baseURL}${diff.url}`).join('\n');
+        const urlsToCopy = diffToPrevCrawl.map(diff => diff.url).join('\n');
         navigator.clipboard.writeText(urlsToCopy).then(() => {
             console.log('URLs copied to clipboard');
         }).catch(err => {
@@ -44,11 +44,12 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
 
     const handleDownloadCsv = () => {
         const csvContent = "data:text/csv;charset=utf-8,"
-            + diffToPrevCrawl.map(diff => `${diff.action},${baseURL}${diff.url}`).join('\n');
+            + `Action, URL, checked\n`
+            + diffToPrevCrawl.map(diff => `${diff.action},${diff.url},${diff.checked}`).join('\n');
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `crawl_${crawl.id}_diff.csv`);
+        link.setAttribute("download", `sitemapDiff_${formatTimestamp(crawl.finishedAt)}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
