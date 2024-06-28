@@ -1,9 +1,9 @@
 import axios from 'axios';
 import {Site} from './types/Site';
 
-export const fetchSitemaps = async (url: string | undefined): Promise<string[]> => {
+export const fetchSitemap = async (url: string | undefined): Promise<string> => {
     if (!url) throw new Error("No URL provided.");
-    const response = await axios.get<string[]>('/api/sitemaps/find', {params: {baseURL: url}});
+    const response = await axios.get<string>('/api/sitemaps/find', {params: {baseURL: url}});
     return response.data;
 };
 

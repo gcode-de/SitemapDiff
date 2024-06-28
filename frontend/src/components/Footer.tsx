@@ -4,9 +4,10 @@ import React from "react";
 type FooterProps = {
     setIsAddSite: (state: boolean) => void;
     handleCrawlAllSites: () => void;
+    isCrawling: string[];
 }
 
-const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites}: FooterProps) => {
+const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites, isCrawling}: FooterProps) => {
     return (
         <AppBar position="fixed" sx={{
             top: 'auto', bottom: 0, bgcolor: 'background.default',
@@ -28,7 +29,8 @@ const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites}: Foot
                     width: '100%',
                 }}>
                     <Button variant="contained" color="primary" onClick={() => setIsAddSite(true)}>Add Site</Button>
-                    <Button variant="contained" color="primary" onClick={handleCrawlAllSites}>Crawl All</Button>
+                    <Button variant="contained" color="primary" disabled={isCrawling.length !== 0}
+                            onClick={handleCrawlAllSites}>Crawl All</Button>
                 </Box>
             </Toolbar>
         </AppBar>

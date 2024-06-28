@@ -5,7 +5,7 @@ export const defaultSites: Site[] = [
         id: "1",
         name: "Google",
         baseURL: "https://google.com",
-        sitemaps: ["https://google.com/sitemap.xml", "https://google.com/sitemap.xml", "https://google.com/sitemap.xml", "https://google.com/sitemap.xml"],
+        sitemap: "https://google.com/sitemap.xml",
         userId: "user",
         scrapeCron: "string",
         crawls: [
@@ -79,7 +79,7 @@ export const defaultSites: Site[] = [
         id: "2",
         name: "Yahoo",
         baseURL: "https://yahoo.com",
-        sitemaps: ["https://google.com/sitemap.xml", "https://google.com/sitemap.xml", "https://google.com/sitemap.xml", "https://google.com/sitemap.xml"],
+        sitemap: "https://yahoo.com/sitemap.xml",
         userId: "user",
         scrapeCron: "string",
         crawls: [

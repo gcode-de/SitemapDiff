@@ -18,10 +18,11 @@ public class SitemapController {
     @GetMapping("/find")
     public ResponseEntity<?> findSitemaps(@RequestParam String baseURL) {
         try {
-            String[] sitemaps = sitemapService.findSitemaps(baseURL);
-            return ResponseEntity.ok(sitemaps);
+            String sitemapUrl = sitemapService.findSitemapURL(baseURL);
+            return ResponseEntity.ok(sitemapUrl);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
 }
+

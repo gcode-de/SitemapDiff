@@ -4,7 +4,7 @@ export type Site = {
     id: string;
     name: string;
     baseURL: string;
-    sitemaps: string[];
+    sitemap: string;
     userId: string;
     scrapeCron: string;
     crawls: Crawl[]

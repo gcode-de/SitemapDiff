@@ -5,6 +5,9 @@ import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
+import Typography from "@mui/material/Typography";
+import LoadingSpinner from '../assets/loadingSpinner'
+import axios from 'axios';
 
 type HomeProps = {
     sites: Site[],
@@ -14,6 +17,7 @@ type HomeProps = {
 const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
+    const [isCrawling, setIsCrawling] = useState<string[]>([]);
 
     useEffect(() => {
         if (isAddSite || editSiteId) {
@@ -26,9 +30,10 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
 
     const handleAddSite = async (formData: Site | null | undefined) => {
         try {
-            await createSite(formData);
-            refreshSites();
+            const createdSite = await createSite(formData);
             handleAbortForm();
+            refreshSites();
+            await handleCrawlSite(createdSite.id)
         } catch (error) {
             console.error('Error creating site:', error);
         }
@@ -37,8 +42,8 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const handleEditSite = async (formData: Site | null | undefined) => {
         try {
             await updateSite(formData);
-            refreshSites();
             handleAbortForm();
+            refreshSites();
         } catch (error) {
             console.error('Error updating site:', error);
         }
@@ -48,8 +53,8 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         try {
             if (window.confirm('Are you sure you want to delete this site?')) {
                 await deleteSite(siteId);
-                refreshSites();
                 handleAbortForm();
+                refreshSites();
             }
         } catch (error) {
             console.error('Error deleting site:', error);
@@ -65,13 +70,42 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         console.log("Toggle checkbox:", crawlId, url);
     };
 
-    const handleCrawlSite = (siteId: string) => {
+    const handleCrawlSite = async (siteId: string) => {
+        setIsCrawling(prevState => [...prevState, siteId]);
         console.log("crawl ", siteId);
+
+        try {
+            const response = await axios.get(`/api/sites/crawl/${siteId}`);
+            console.log("Crawl site response:", response.data);
+        } catch (error) {
+            console.error("Error crawling site:", error);
+        } finally {
+            setIsCrawling(prevState => prevState.filter(e => e !== siteId));
+            refreshSites();
+        }
     };
 
-    const handleCrawlAllSites = () => {
-        console.log("crawl all sites");
+    const handleCrawlAllSites = async () => {
+        sites.forEach((site: Site) => {
+            handleCrawlSite(site.id)
+        })
     };
+
+    if (!sites || !sites.length) {
+        return <Box id="scrollContainer" sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'flex-start',
+            gap: 2,
+            paddingTop: 2,
+            height: '80vh',
+            width: '95vw',
+            overflowX: 'auto'
+        }}>
+            <Typography variant={'h4'}>Loading ...</Typography>
+            <LoadingSpinner/>
+        </Box>
+    }
 
     return (
         <>
@@ -86,7 +120,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                 overflowX: 'auto'
             }}>
                 <SiteList sites={sites} setEditSiteId={setEditSiteId} handleCheckUrl={handleCheckUrl}
-                          handleCrawlSite={handleCrawlSite}/>
+                          handleCrawlSite={handleCrawlSite} isCrawling={isCrawling}/>
                 {(isAddSite || editSiteId) &&
                     <Box sx={{flex: '0 0 auto'}}>
                         <SiteForm data={sites?.find(site => site.id === editSiteId)}
@@ -98,7 +132,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                     </Box>
                 }
             </Box>
-            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites}/>
+            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={isCrawling}/>
         </>
     );
 };

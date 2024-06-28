@@ -1,63 +1,48 @@
 package de.samuelgesang.backend.sitemaps;
 
+import de.samuelgesang.backend.crawls.Crawl;
+import de.samuelgesang.backend.crawls.CrawlDiffItem;
+import de.samuelgesang.backend.crawls.CrawlRepository;
+import de.samuelgesang.backend.sites.Site;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.StringReader;
 import java.net.HttpURLConnection;
-import java.net.URI;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.time.Instant;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class SitemapService {
 
-    public String[] findSitemaps(String baseURL) throws Exception {
-        List<String> sitemaps = new ArrayList<>();
-        try {
-            URL url = createURLWithProtocol(baseURL + "/sitemap.xml");
-            String content = fetchContentFromURL(url);
+    @Autowired
+    private CrawlRepository crawlRepository;
 
-            if (!isXML(content)) {
-                throw new Exception("Invalid sitemap URL: The URL returns an HTML document instead of an XML.");
-            }
+    public String findSitemapURL(String baseURL) throws Exception {
+        String[] protocols = {"https://", "http://"};
+        String[] subdomains = {"www.", ""};
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-            factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-            factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-            factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(new InputSource(new StringReader(content)));
+        baseURL = removeTrailingSlash(baseURL);
 
-            NodeList sitemapNodes = document.getElementsByTagName("sitemap");
-            if (sitemapNodes.getLength() == 0) {
-                // No additional sitemaps, return the main sitemap URL
-                sitemaps.add(url.toString());
-            } else {
-                // Multiple sitemaps, extract their URLs
-                for (int i = 0; i < sitemapNodes.getLength(); i++) {
-                    String sitemapUrl = sitemapNodes.item(i).getTextContent().trim();
-                    sitemaps.add(sitemapUrl);
+        for (String protocol : protocols) {
+            for (String subdomain : subdomains) {
+                String sitemapUrl = protocol + subdomain + removeProtocol(baseURL) + "/sitemap.xml";
+                if (isValidSitemap(sitemapUrl)) {
+                    return sitemapUrl;
                 }
             }
-        } catch (Exception e) {
-            throw new Exception("Failed to find sitemaps. Please enter manually.", e);
         }
-        return sitemaps.toArray(new String[0]);
+        throw new Exception("No valid sitemap found for URL: " + baseURL);
     }
 
-    private URL createURLWithProtocol(String urlString) throws Exception {
+    private boolean isValidSitemap(String sitemapUrl) {
         try {
-            return new URI("https://" + removeProtocol(urlString)).toURL();
+            String content = fetchContentFromURL(new URL(sitemapUrl));
+            return isXML(content);
         } catch (Exception e) {
-            return new URI("http://" + removeProtocol(urlString)).toURL();
+            return false;
         }
     }
 
@@ -93,6 +78,117 @@ public class SitemapService {
             return urlString.substring(8);
         } else {
             return urlString;
+        }
+    }
+
+    private String removeTrailingSlash(String urlString) {
+        if (urlString.endsWith("/")) {
+            return urlString.substring(0, urlString.length() - 1);
+        } else {
+            return urlString;
+        }
+    }
+
+    public Crawl crawlSite(Site site) throws Exception {
+        Crawl crawl = new Crawl();
+        crawl.setSiteId(site.getId());
+
+        List<String> urls = new ArrayList<>();
+        String sitemapUrl = site.getSitemap();
+        System.out.println("Starting to fetch URLs from sitemap for site: " + sitemapUrl);
+        fetchUrlsFromSitemap(sitemapUrl, urls);
+        System.out.println("Finished fetching URLs. Total URLs found: " + urls.size());
+
+        crawl.setUrls(urls);
+
+        // Set prevCrawlId if there was a previous crawl
+        List<String> crawlIds = site.getCrawlIds();
+        if (!crawlIds.isEmpty()) {
+            String prevCrawlId = crawlIds.get(crawlIds.size() - 1);
+            crawl.setPrevCrawlId(prevCrawlId);
+
+            // Fetch previous crawl
+            Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
+            if (prevCrawl != null) {
+                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevCrawl.getUrls());
+                System.out.println("diffToPrevCrawl: " + diffToPrevCrawl);
+                crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+            }
+        }
+
+        // Set finishedAt with the current timestamp in Zulu format
+        crawl.setFinishedAt(Instant.now().toString());
+
+        return crawl;
+    }
+
+    private List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
+        Set<String> currentUrlSet = new HashSet<>(currentUrls);
+        Set<String> previousUrlSet = new HashSet<>(previousUrls);
+
+        List<CrawlDiffItem> diff = new ArrayList<>();
+
+        // URLs added in current crawl
+        for (String url : currentUrlSet) {
+            if (!previousUrlSet.contains(url)) {
+                CrawlDiffItem item = new CrawlDiffItem();
+                item.setAction("add");
+                item.setUrl(url);
+                item.setChecked(false);
+                diff.add(item);
+            }
+        }
+
+        // URLs removed in current crawl
+        for (String url : previousUrlSet) {
+            if (!currentUrlSet.contains(url)) {
+                CrawlDiffItem item = new CrawlDiffItem();
+                item.setAction("remove");
+                item.setUrl(url);
+                item.setChecked(false);
+                diff.add(item);
+            }
+        }
+
+        return diff;
+    }
+
+    private void fetchUrlsFromSitemap(String sitemapUrl, List<String> urls) throws Exception {
+        System.out.println("Fetching content from URL: " + sitemapUrl);
+        URL url = new URL(sitemapUrl);
+        String content = fetchContentFromURL(url);
+        System.out.println("Content fetched from URL: " + sitemapUrl);
+
+        if (!isXML(content)) {
+            throw new Exception("Invalid sitemap URL: The URL returns an HTML document instead of an XML.");
+        }
+
+        // Extract URLs from the XML content
+        extractUrlsFromSitemap(content, urls);
+    }
+
+    private void extractUrlsFromSitemap(String content, List<String> urls) {
+        System.out.println("Extracting URLs from sitemap content.");
+        // Pattern to match <loc> tags
+        Pattern locPattern = Pattern.compile("<loc>(.*?)</loc>");
+        Matcher locMatcher = locPattern.matcher(content);
+        while (locMatcher.find()) {
+            String url = locMatcher.group(1).trim();
+            urls.add(url);  // Add the extracted URL to the list
+            // System.out.println("Found URL: " + url);  // Debug output to check extracted URLs
+        }
+
+        // Pattern to match nested <sitemap> tags and their <loc> tags
+        Pattern sitemapPattern = Pattern.compile("<sitemap>.*?<loc>(.*?)</loc>.*?</sitemap>", Pattern.DOTALL);
+        Matcher sitemapMatcher = sitemapPattern.matcher(content);
+        while (sitemapMatcher.find()) {
+            try {
+                String nestedSitemapUrl = sitemapMatcher.group(1).trim();
+                System.out.println("Found nested sitemap URL: " + nestedSitemapUrl);  // Debug output to check nested sitemap URLs
+                fetchUrlsFromSitemap(nestedSitemapUrl, urls);
+            } catch (Exception e) {
+                e.printStackTrace();  // Handle the exception or log it
+            }
         }
     }
 }
