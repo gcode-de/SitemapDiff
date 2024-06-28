@@ -1,4 +1,4 @@
-package de.samuelgesang.backend.urlChunk;
+package de.samuelgesang.backend.url_chunk;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
