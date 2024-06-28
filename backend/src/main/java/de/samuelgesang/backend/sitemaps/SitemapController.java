@@ -1,6 +1,5 @@
 package de.samuelgesang.backend.sitemaps;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,11 +11,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/sitemaps")
 public class SitemapController {
 
-    @Autowired
-    private SitemapService sitemapService;
+    private final SitemapService sitemapService;
+
+    public SitemapController(SitemapService sitemapService) {
+        this.sitemapService = sitemapService;
+    }
 
     @GetMapping("/find")
-    public ResponseEntity<?> findSitemaps(@RequestParam String baseURL) {
+    public ResponseEntity<String> findSitemaps(@RequestParam String baseURL) {
         try {
             String sitemapUrl = sitemapService.findSitemapURL(baseURL);
             return ResponseEntity.ok(sitemapUrl);
@@ -25,4 +27,3 @@ public class SitemapController {
         }
     }
 }
-

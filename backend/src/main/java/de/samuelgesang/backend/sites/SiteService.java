@@ -3,34 +3,29 @@ package de.samuelgesang.backend.sites;
 import de.samuelgesang.backend.crawls.Crawl;
 import de.samuelgesang.backend.crawls.CrawlRepository;
 import de.samuelgesang.backend.crawls.CrawlService;
-import de.samuelgesang.backend.sitemaps.SitemapService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class SiteService {
 
-    @Autowired
-    private SiteRepository siteRepository;
+    private final SiteRepository siteRepository;
+    private final CrawlRepository crawlRepository;
+    private final CrawlService crawlService;
 
-    @Autowired
-    private CrawlRepository crawlRepository;
-
-    @Autowired
-    private SitemapService sitemapService;
-
-    @Autowired
-    @Lazy
-    private CrawlService crawlService;
+    public SiteService(SiteRepository siteRepository,
+                       CrawlRepository crawlRepository,
+                       @Lazy CrawlService crawlService) {
+        this.siteRepository = siteRepository;
+        this.crawlRepository = crawlRepository;
+        this.crawlService = crawlService;
+    }
 
     public List<Site> getAllSites(String userId) {
-        List<Site> sites = siteRepository.findByUserId(userId);
-        return sites;
+        return siteRepository.findByUserId(userId);
     }
 
     public Optional<Site> getSiteById(String id) {
@@ -59,22 +54,9 @@ public class SiteService {
         }
     }
 
-    public List<Site> findByUser(String userId) {
-        return siteRepository.findByUserId(userId);
-    }
-
-    public Site findByIdAndUser(String siteId, String userId) {
-        Optional<Site> site = siteRepository.findByIdAndUserId(siteId, userId);
-        return site.orElse(null);
-    }
-
-    public void save(Site site) {
-        siteRepository.save(site);
-    }
-
     public List<SiteWithCrawlsDTO> getAllSitesWithCrawls(String userId) {
         List<Site> sites = siteRepository.findByUserId(userId);
-        return sites.stream().map(this::mapToDTO).collect(Collectors.toList());
+        return sites.stream().map(this::mapToDTO).toList();
     }
 
     public Optional<SiteWithCrawlsDTO> getSiteWithCrawlsByIdAndUser(String siteId, String userId) {

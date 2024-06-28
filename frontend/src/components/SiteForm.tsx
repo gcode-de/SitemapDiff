@@ -67,9 +67,9 @@ const SiteForm: React.FC<SiteFormProps> = ({
 
     const handleSubmit = async () => {
         if (data) {
-            await handleEditSite(formData);
+            handleEditSite(formData);
         } else {
-            await handleAddSite(formData);
+            handleAddSite(formData);
         }
         refreshSites();
         handleAbortForm();

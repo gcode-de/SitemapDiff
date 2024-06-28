@@ -3,7 +3,6 @@ package de.samuelgesang.backend.crawls;
 import de.samuelgesang.backend.sitemaps.SitemapService;
 import de.samuelgesang.backend.sites.Site;
 import de.samuelgesang.backend.sites.SiteService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -17,17 +16,18 @@ import java.util.Optional;
 @RequestMapping("/api/crawls")
 public class CrawlController {
 
-    @Autowired
-    private SiteService siteService;
+    private final SiteService siteService;
+    private final SitemapService sitemapService;
+    private final CrawlRepository crawlRepository;
 
-    @Autowired
-    private SitemapService sitemapService;
-
-    @Autowired
-    private CrawlRepository crawlRepository;
+    public CrawlController(SiteService siteService, SitemapService sitemapService, CrawlRepository crawlRepository) {
+        this.siteService = siteService;
+        this.sitemapService = sitemapService;
+        this.crawlRepository = crawlRepository;
+    }
 
     @GetMapping("/start/{siteId}")
-    public ResponseEntity<?> crawlSiteById(@PathVariable String siteId, @AuthenticationPrincipal OAuth2User user) {
+    public ResponseEntity<String> crawlSiteById(@PathVariable String siteId, @AuthenticationPrincipal OAuth2User user) {
         try {
             if (user == null) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
