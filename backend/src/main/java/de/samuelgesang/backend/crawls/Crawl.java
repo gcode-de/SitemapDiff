@@ -12,6 +12,7 @@ public class Crawl {
     private String siteId;
     private String finishedAt;
     private String prevCrawlId;
+    private List<String> urlChunkIds;
     private List<CrawlDiffItem> diffToPrevCrawl;
 
     // getters and setters
@@ -46,6 +47,14 @@ public class Crawl {
 
     public void setPrevCrawlId(String prevCrawlId) {
         this.prevCrawlId = prevCrawlId;
+    }
+
+    public List<String> getUrlChunkIds() {
+        return urlChunkIds;
+    }
+
+    public void setUrlChunkIds(List<String> urlChunkIds) {
+        this.urlChunkIds = urlChunkIds;
     }
 
     public List<CrawlDiffItem> getDiffToPrevCrawl() {

@@ -29,7 +29,6 @@ public class SiteService {
     private CrawlService crawlService;
 
     public List<Site> getAllSites(String userId) {
-        System.out.println("Getting all sites for user " + userId);
         List<Site> sites = siteRepository.findByUserId(userId);
         return sites;
     }
@@ -93,7 +92,6 @@ public class SiteService {
         dto.setScrapeCron(site.getScrapeCron());
         dto.setCrawlIds(site.getCrawlIds());
         List<Crawl> crawls = crawlRepository.findByIdIn(site.getCrawlIds());
-        System.out.println("Crawls found: " + crawls.size());
         dto.setCrawls(crawls);
         return dto;
     }

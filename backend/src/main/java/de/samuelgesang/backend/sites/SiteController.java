@@ -25,9 +25,7 @@ public class SiteController {
 
         Map<String, Object> attributes = user.getAttributes();
         String userId = (String) attributes.get("sub");
-        System.out.println("getAllSites: " + userId);
         List<SiteWithCrawlsDTO> sites = siteService.getAllSitesWithCrawls(userId);
-        System.out.println("Sites found: " + sites.size());
         return sites;
     }
 
@@ -40,7 +38,6 @@ public class SiteController {
         Map<String, Object> attributes = user.getAttributes();
         String userId = (String) attributes.get("sub");
         Optional<SiteWithCrawlsDTO> site = siteService.getSiteWithCrawlsByIdAndUser(id, userId);
-        System.out.println("Site found: " + site.isPresent());
         return site.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
