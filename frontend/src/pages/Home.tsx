@@ -75,7 +75,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         console.log("crawl ", siteId);
 
         try {
-            const response = await axios.get(`/api/sites/crawl/${siteId}`);
+            const response = await axios.get(`/api/crawls/start/${siteId}`);
             console.log("Crawl site response:", response.data);
         } catch (error) {
             console.error("Error crawling site:", error);
