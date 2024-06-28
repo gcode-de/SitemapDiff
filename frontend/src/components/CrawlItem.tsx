@@ -12,7 +12,7 @@ type SiteItemProps = {
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
 }
 
-const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: SiteItemProps) => {
+const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemProps) => {
 
     function truncateTextFromStart(text: string, maxLength: number) {
         if (text.length > maxLength) {
@@ -93,7 +93,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                             href={diff.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title={`${baseURL}${diff.url}`} // Full URL on hover
+                            title={diff.url}
                             sx={{
                                 color: 'inherit',
                                 textDecoration: 'none',

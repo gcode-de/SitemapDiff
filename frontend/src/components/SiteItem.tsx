@@ -1,7 +1,7 @@
-import React from 'react';
+import React, {useEffect, useRef} from 'react';
 import {List} from '@mui/material';
-import CrawlItem from "./CrawlItem.tsx";
-import {Site} from "../types/Site.tsx";
+import CrawlItem from "./CrawlItem";
+import {Site} from "../types/Site";
 
 type SiteItemProps = {
     site: Site;
@@ -9,8 +9,16 @@ type SiteItemProps = {
 }
 
 const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl}: SiteItemProps) => {
+    const listRef = useRef<HTMLUListElement>(null);
+
+    useEffect(() => {
+        if (listRef.current) {
+            listRef.current.scrollTop = listRef.current.scrollHeight;
+        }
+    }, [site.crawls]);
+
     return (
-        <List sx={{width: 360, maxHeight: '55vh', overflowY: 'auto'}}>
+        <List ref={listRef} sx={{width: 360, maxHeight: '55vh', overflowY: 'auto'}}>
             {site.crawls?.map((crawl) => (
                 <CrawlItem key={crawl.id + crawl.finishedAt} crawl={crawl} baseURL={site.baseURL}
                            handleCheckUrl={handleCheckUrl}/>

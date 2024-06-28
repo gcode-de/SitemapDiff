@@ -1,7 +1,11 @@
-import {fireEvent, render, screen} from '@testing-library/react';
+import {fireEvent, render, screen, waitFor} from '@testing-library/react';
 import Home from './Home';
 import '@testing-library/jest-dom';
 import {Site} from '../types/Site';
+import axios from 'axios';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('Home Component', () => {
     const sites: Site[] = [
@@ -26,18 +30,45 @@ describe('Home Component', () => {
     ];
 
     const refreshSitesMock = jest.fn();
+    const setSitesMock = jest.fn();
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
 
     test('renders Home with SiteList', () => {
-        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
         const siteList = screen.getByText('Site 1');
         expect(siteList).toBeInTheDocument();
     });
 
+    test('calls handleCrawlAllSites when Crawl All button is clicked', async () => {
+        mockedAxios.get.mockResolvedValue({data: []});
 
-    test('calls handleCrawlAllSites when Crawl All button is clicked', () => {
-        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);
+
+        await waitFor(() => {
+            expect(mockedAxios.get).toHaveBeenCalledWith('/api/crawls/start/1');
+            expect(mockedAxios.get).toHaveBeenCalledWith('/api/crawls/start/2');
+        });
+    });
+
+    test('handles network error', async () => {
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+        mockedAxios.get.mockRejectedValue(new Error('Network Error'));
+
+        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
+
+        const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
+        fireEvent.click(crawlAllButton);
+
+        await waitFor(() => {
+            expect(consoleErrorSpy).toHaveBeenCalledWith('Error crawling site:', expect.any(Error));
+        });
+
+        consoleErrorSpy.mockRestore();
     });
 });

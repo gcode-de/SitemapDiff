@@ -11,10 +11,11 @@ import axios from 'axios';
 
 type HomeProps = {
     sites: Site[],
+    setSites: React.Dispatch<React.SetStateAction<Site[]>>;
     refreshSites: () => void,
 }
 
-const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
+const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
     const [isCrawling, setIsCrawling] = useState<string[]>([]);
@@ -67,20 +68,44 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     };
 
     const handleCheckUrl = async (crawlId: string, url: string, newState: boolean) => {
-        console.log("Toggle checkbox:", crawlId, url, newState);
+        console.log('Toggle checkbox:', crawlId, url, newState);
 
         const payload = {
             url: url,
-            checked: newState
+            checked: newState,
         };
 
         try {
             const response = await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
-            console.log("URL checked status updated successfully:", response.data);
-            refreshSites();
+            console.log('URL checked status updated successfully:', response.data);
+
+            setSites((prevSites) =>
+                prevSites.map((site) => {
+                    if (site.crawls.some((crawl) => crawl.id === crawlId)) {
+                        return {
+                            ...site,
+                            crawls: site.crawls.map((crawl) => {
+                                if (crawl.id === crawlId) {
+                                    return {
+                                        ...crawl,
+                                        diffToPrevCrawl: crawl.diffToPrevCrawl.map((item) =>
+                                            item.url === url ? {...item, checked: newState} : item
+                                        ),
+                                    };
+                                }
+                                return crawl;
+                            }),
+                        };
+                    }
+                    return site;
+                })
+            );
+            console.log('Sites state updated:', sites); // Fügen Sie dies hinzu, um den aktualisierten State zu protokollieren
         } catch (error) {
-            console.error("Error updating URL checked status:", error);
+            console.error('Error updating URL checked status:', error);
         }
+
+        refreshSites();
     };
 
     const handleCrawlSite = async (siteId: string) => {
