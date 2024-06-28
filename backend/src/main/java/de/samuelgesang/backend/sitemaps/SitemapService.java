@@ -6,9 +6,9 @@ import de.samuelgesang.backend.crawls.CrawlRepository;
 import de.samuelgesang.backend.exceptions.SitemapException;
 import de.samuelgesang.backend.url_chunk.UrlChunk;
 import de.samuelgesang.backend.url_chunk.UrlChunkRepository;
-import de.samuelgesang.backend.url_chunk.UrlObject;
 import de.samuelgesang.backend.sites.Site;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -23,10 +23,11 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 @Service
-@Slf4j
 public class SitemapService {
 
+    private static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
     private static final int URL_CHUNK_SIZE = 1000;
+
     private final CrawlRepository crawlRepository;
     private final UrlChunkRepository urlChunkRepository;
 
@@ -35,7 +36,7 @@ public class SitemapService {
         this.urlChunkRepository = urlChunkRepository;
     }
 
-    public String findSitemapURL(String baseURL) throws Exception {
+    public String findSitemapURL(String baseURL) throws SitemapException {
         String[] protocols = {"https://", "http://"};
         String[] subdomains = {"www.", ""};
 
@@ -57,28 +58,49 @@ public class SitemapService {
             String content = fetchContentFromURL(new URI(sitemapUrl).toURL());
             return isXML(content);
         } catch (Exception e) {
+            logger.error("Error validating sitemap URL: {}", sitemapUrl, e);
             return false;
         }
     }
 
-    private String fetchContentFromURL(URL url) throws Exception {
-        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-        connection.setRequestMethod("GET");
-        connection.setRequestProperty("Accept", "application/xml");
-        connection.connect();
+    private String fetchContentFromURL(URL url) throws SitemapException {
+        HttpURLConnection connection = null;
+        try {
+            connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("GET");
+            connection.setRequestProperty("Accept", "application/xml");
+            connection.connect();
 
-        int responseCode = connection.getResponseCode();
-        if (responseCode != 200) {
-            throw new SitemapException("Failed to fetch content from URL: " + url + ". Response code: " + responseCode);
-        }
-
-        try (BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()))) {
-            String inputLine;
-            StringBuilder content = new StringBuilder();
-            while ((inputLine = in.readLine()) != null) {
-                content.append(inputLine);
+            int responseCode = connection.getResponseCode();
+            if (responseCode != 200) {
+                throw new SitemapException("Failed to fetch content from URL: " + url + ". Response code: " + responseCode);
             }
-            return content.toString();
+
+            if (url.getPath().endsWith(".gz")) {
+                try (GZIPInputStream gzipInputStream = new GZIPInputStream(url.openStream());
+                     BufferedReader reader = new BufferedReader(new InputStreamReader(gzipInputStream))) {
+                    StringBuilder content = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        content.append(line);
+                    }
+                    return content.toString();
+                }
+            } else {
+                try (Scanner scanner = new Scanner(url.openStream())) {
+                    StringBuilder content = new StringBuilder();
+                    while (scanner.hasNext()) {
+                        content.append(scanner.nextLine());
+                    }
+                    return content.toString();
+                }
+            }
+        } catch (Exception e) {
+            throw new SitemapException("Error fetching content from URL: " + url, e);
+        } finally {
+            if (connection != null) {
+                connection.disconnect();
+            }
         }
     }
 
@@ -104,44 +126,55 @@ public class SitemapService {
         }
     }
 
-    public Crawl crawlSite(Site site) throws Exception {
-        Crawl crawl = new Crawl();
-        crawl.setSiteId(site.getId());
+    public Crawl crawlSite(Site site) throws SitemapException {
+        try {
+            logger.info("Crawling site: {} with ID: {}", site.getName(), site.getId());
+            Crawl crawl = new Crawl();
+            crawl.setSiteId(site.getId());
 
-        List<UrlObject> urls = new ArrayList<>();
-        String sitemapUrl = site.getSitemap();
-        fetchUrlsFromSitemap(sitemapUrl, urls);
+            List<String> urls = new ArrayList<>();
+            String sitemapUrl = site.getSitemap();
+            logger.info("Fetching URLs from sitemap: {}", sitemapUrl);
+            fetchUrlsFromSitemap(sitemapUrl, urls);
+            logger.info("Total URLs fetched: {}", urls.size());
 
-        // Split URLs into chunks and save them
-        List<String> urlChunkIds = saveUrlChunks(urls, crawl.getId());
-        crawl.setUrlChunkIds(urlChunkIds);
+            // Split URLs into chunks and save them
+            List<String> urlChunkIds = saveUrlChunks(urls, crawl.getId());
+            crawl.setUrlChunkIds(urlChunkIds);
 
-        // Set prevCrawlId if there was a previous crawl
-        List<String> crawlIds = site.getCrawlIds();
-        if (!crawlIds.isEmpty()) {
-            String prevCrawlId = crawlIds.get(crawlIds.size() - 1);
-            crawl.setPrevCrawlId(prevCrawlId);
-
-            // Fetch previous crawl
-            Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
-            if (prevCrawl != null) {
-                List<UrlObject> prevUrls = loadUrlsFromChunks(prevCrawl.getUrlChunkIds());
-                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevUrls);
-                log.info("Site: " + site.getName() + " - diffToPrevCrawl: " + diffToPrevCrawl);
-                crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+            // Set prevCrawlId if there was a previous crawl
+            List<String> crawlIds = site.getCrawlIds();
+            if (crawlIds == null) {
+                crawlIds = new ArrayList<>();
             }
+            if (!crawlIds.isEmpty()) {
+                String prevCrawlId = crawlIds.getLast();
+                crawl.setPrevCrawlId(prevCrawlId);
+
+                // Fetch previous crawl
+                Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
+                if (prevCrawl != null) {
+                    List<String> prevUrls = loadUrlsFromChunks(prevCrawl.getUrlChunkIds());
+                    List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevUrls);
+                    logger.info("Site: {} - diffToPrevCrawl: {}", site.getName(), diffToPrevCrawl);
+                    crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+                }
+            }
+
+            // Set finishedAt with the current timestamp in Zulu format
+            crawl.setFinishedAt(Instant.now().toString());
+
+            return crawl;
+        } catch (Exception e) {
+            logger.error("Error crawling site: {}", site.getName(), e);
+            throw new SitemapException("Error crawling site: " + site.getName(), e);
         }
-
-        // Set finishedAt with the current timestamp in Zulu format
-        crawl.setFinishedAt(Instant.now().toString());
-
-        return crawl;
     }
 
-    private List<String> saveUrlChunks(List<UrlObject> urls, String crawlId) {
+    private List<String> saveUrlChunks(List<String> urls, String crawlId) {
         List<String> urlChunkIds = new ArrayList<>();
         for (int i = 0; i < urls.size(); i += URL_CHUNK_SIZE) {
-            List<UrlObject> chunk = urls.subList(i, Math.min(i + URL_CHUNK_SIZE, urls.size()));
+            List<String> chunk = urls.subList(i, Math.min(i + URL_CHUNK_SIZE, urls.size()));
             UrlChunk urlChunk = new UrlChunk();
             urlChunk.setCrawlId(crawlId);
             urlChunk.setUrls(chunk);
@@ -151,8 +184,8 @@ public class SitemapService {
         return urlChunkIds;
     }
 
-    private List<UrlObject> loadUrlsFromChunks(List<String> urlChunkIds) {
-        List<UrlObject> urls = new ArrayList<>();
+    private List<String> loadUrlsFromChunks(List<String> urlChunkIds) {
+        List<String> urls = new ArrayList<>();
         for (String chunkId : urlChunkIds) {
             Optional<UrlChunk> chunk = urlChunkRepository.findById(chunkId);
             chunk.ifPresent(urlChunk -> urls.addAll(urlChunk.getUrls()));
@@ -160,16 +193,9 @@ public class SitemapService {
         return urls;
     }
 
-    private List<CrawlDiffItem> calculateDiff(List<UrlObject> currentUrls, List<UrlObject> previousUrls) {
-        Set<String> currentUrlSet = new HashSet<>();
-        Set<String> previousUrlSet = new HashSet<>();
-
-        for (UrlObject urlObject : currentUrls) {
-            currentUrlSet.add(urlObject.getUrl());
-        }
-        for (UrlObject urlObject : previousUrls) {
-            previousUrlSet.add(urlObject.getUrl());
-        }
+    private List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
+        Set<String> currentUrlSet = new HashSet<>(currentUrls);
+        Set<String> previousUrlSet = new HashSet<>(previousUrls);
 
         List<CrawlDiffItem> diff = new ArrayList<>();
 
@@ -198,37 +224,50 @@ public class SitemapService {
         return diff;
     }
 
-    private void fetchUrlsFromSitemap(String sitemapUrl, List<UrlObject> urls) throws Exception {
-        URL url = new URI(sitemapUrl).toURL();
-        String content = fetchContentFromURL(url);
+    private void fetchUrlsFromSitemap(String sitemapUrl, List<String> urls) throws SitemapException {
+        try {
+            logger.info("Fetching content from sitemap URL: {}", sitemapUrl);
+            URL url = new URI(sitemapUrl).toURL();
+            String content = fetchContentFromURL(url);
 
-        if (!isXML(content)) {
-            throw new SitemapException("Invalid sitemap URL: The URL returns an HTML document instead of an XML.");
+            if (!isXML(content)) {
+                throw new SitemapException("Invalid sitemap URL: The URL returns an HTML document instead of an XML.");
+            }
+
+            extractUrlsFromSitemap(content, urls);
+        } catch (Exception e) {
+            logger.error("Error fetching URLs from sitemap: {}", sitemapUrl, e);
+            throw new SitemapException("Error fetching URLs from sitemap: " + sitemapUrl, e);
         }
-
-        extractUrlsFromSitemap(content, urls);
     }
 
-    private void extractUrlsFromSitemap(String content, List<UrlObject> urls) {
-        // Pattern to match <loc> tags
-        Pattern locPattern = Pattern.compile("<loc>(.*?)</loc>");
-        Matcher locMatcher = locPattern.matcher(content);
-        while (locMatcher.find()) {
-            String url = locMatcher.group(1).trim();
-            urls.add(new UrlObject(url, false));
-        }
-
-        // Pattern to match nested <sitemap> tags and their <loc> tags
-        Pattern sitemapPattern = Pattern.compile("<sitemap>.*?<loc>(.*?)</loc>.*?</sitemap>", Pattern.DOTALL);
-        Matcher sitemapMatcher = sitemapPattern.matcher(content);
-        while (sitemapMatcher.find()) {
-            try {
-                String nestedSitemapUrl = sitemapMatcher.group(1).trim();
-                log.info("Found nested sitemap URL: " + nestedSitemapUrl);
-                fetchUrlsFromSitemap(nestedSitemapUrl, urls);
-            } catch (Exception e) {
-                log.error("Error fetching nested sitemap: " + sitemapMatcher.group(1).trim(), e);
+    private void extractUrlsFromSitemap(String content, List<String> urls) throws SitemapException {
+        try {
+            logger.info("Extracting URLs from sitemap content.");
+            // Pattern to match <loc> tags
+            Pattern locPattern = Pattern.compile("<loc>(.*?)</loc>");
+            Matcher locMatcher = locPattern.matcher(content);
+            while (locMatcher.find()) {
+                String url = locMatcher.group(1).trim();
+                urls.add(url);
             }
+
+            // Pattern to match nested <sitemap> tags and their <loc> tags
+            Pattern sitemapPattern = Pattern.compile("<sitemap>.*?<loc>(.*?)</loc>.*?</sitemap>", Pattern.DOTALL);
+            Matcher sitemapMatcher = sitemapPattern.matcher(content);
+            while (sitemapMatcher.find()) {
+                try {
+                    String nestedSitemapUrl = sitemapMatcher.group(1).trim();
+                    logger.info("Found nested sitemap URL: {}", nestedSitemapUrl);
+                    fetchUrlsFromSitemap(nestedSitemapUrl, urls);
+                } catch (Exception e) {
+                    logger.error("Error fetching nested sitemap: {}", sitemapMatcher.group(1).trim(), e);
+                    throw new SitemapException("Error fetching nested sitemap: " + sitemapMatcher.group(1).trim(), e);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error extracting URLs from sitemap content.", e);
+            throw new SitemapException("Error extracting URLs from sitemap content.", e);
         }
     }
 }
