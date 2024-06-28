@@ -25,16 +25,16 @@ const App: React.FC = () => {
             })
     }
 
-    const loadSites = () => {
-        axios.get(`/api/sites`)
-            .then(response => {
-                setSites(response.data)
-            })
-            .catch(error => {
-                // setSites([])
-                console.error(error);
-            })
-    }
+    const loadSites = async () => {
+        try {
+            const response = await axios.get('/api/sites');
+            setSites(response.data);
+            console.log("updated sites")
+        } catch (error) {
+            console.error('Error fetching sites:', error);
+        }
+    };
+
 
     useEffect(() => {
         loadUser();

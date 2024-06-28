@@ -9,7 +9,7 @@ import {Crawl} from "../types/Crawl.tsx";
 type SiteItemProps = {
     crawl: Crawl;
     baseURL: string;
-    handleCheckUrl: (crawlId: string, url: string) => void;
+    handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
 }
 
 const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: SiteItemProps) => {
@@ -68,7 +68,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                         <IconButton edge="end" aria-label="mark as done" sx={{padding: '0px', minHeight: '24px'}}>
                             <Checkbox
                                 checked={diff.checked || false}
-                                onChange={() => handleCheckUrl(crawl.id, diff.url)}
+                                onChange={() => handleCheckUrl(crawl.id, diff.url, !diff.checked)}
                                 inputProps={{'aria-label': 'controlled'}}
                                 sx={{padding: '0px', height: '16px', width: '16px'}}
                             />

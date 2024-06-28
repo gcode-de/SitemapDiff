@@ -5,7 +5,7 @@ import {Site} from "../types/Site.tsx";
 
 type SiteItemProps = {
     site: Site;
-    handleCheckUrl: (crawlId: string, url: string) => void;
+    handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
 }
 
 const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl}: SiteItemProps) => {

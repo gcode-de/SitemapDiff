@@ -3,6 +3,9 @@ package de.samuelgesang.backend.crawls;
 import de.samuelgesang.backend.sitemaps.SitemapService;
 import de.samuelgesang.backend.sites.Site;
 import de.samuelgesang.backend.sites.SiteService;
+import de.samuelgesang.backend.url_chunk.UpdateUrlStatusDTO;
+import de.samuelgesang.backend.url_chunk.UrlChunk;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,27 +15,22 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 import java.util.Optional;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @RestController
 @RequestMapping("/api/crawls")
+@RequiredArgsConstructor
 public class CrawlController {
 
     private final SiteService siteService;
     private final SitemapService sitemapService;
     private final CrawlRepository crawlRepository;
-
-    public CrawlController(SiteService siteService, SitemapService sitemapService, CrawlRepository crawlRepository) {
-        this.siteService = siteService;
-        this.sitemapService = sitemapService;
-        this.crawlRepository = crawlRepository;
-    }
+    private final CrawlService crawlService;
 
     @GetMapping("/start/{siteId}")
     public ResponseEntity<String> crawlSiteById(@PathVariable String siteId, @AuthenticationPrincipal OAuth2User user) {
         try {
-            if (user == null) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not authenticated");
-            }
-
             Map<String, Object> attributes = user.getAttributes();
             String userId = (String) attributes.get("sub");
 
@@ -60,4 +58,28 @@ public class CrawlController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
+    @PutMapping("/update-url-status/{crawlId}")
+    public ResponseEntity<Crawl> updateUrlCheckedStatus(@PathVariable String crawlId,
+                                                        @RequestBody UpdateUrlStatusDTO updateUrlStatusDTO,
+                                                        @AuthenticationPrincipal OAuth2User user) {
+        try {
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            }
+            log.info("Received request to update URL checked status: crawlId={}, updateUrlStatusDTO={}", crawlId, updateUrlStatusDTO);
+
+            Crawl updatedCrawl = crawlService.updateUrlCheckedStatus(crawlId, updateUrlStatusDTO);
+
+            if (updatedCrawl != null) {
+                return ResponseEntity.ok(updatedCrawl);
+            } else {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+            }
+        } catch (Exception e) {
+            log.error("Error updating URL checked status: ", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
 }

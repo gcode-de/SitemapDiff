@@ -66,8 +66,21 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
         setEditSiteId(null);
     };
 
-    const handleCheckUrl = (crawlId: string, url: string) => {
-        console.log("Toggle checkbox:", crawlId, url);
+    const handleCheckUrl = async (crawlId: string, url: string, newState: boolean) => {
+        console.log("Toggle checkbox:", crawlId, url, newState);
+
+        const payload = {
+            url: url,
+            checked: newState
+        };
+
+        try {
+            const response = await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
+            console.log("URL checked status updated successfully:", response.data);
+            refreshSites();
+        } catch (error) {
+            console.error("Error updating URL checked status:", error);
+        }
     };
 
     const handleCrawlSite = async (siteId: string) => {
