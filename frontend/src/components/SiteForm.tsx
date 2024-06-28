@@ -29,7 +29,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
         const {name, value} = e.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
-            [name]: value,
+            [name]: value.trim(),
         } as Site));
     };
 
@@ -113,7 +113,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     value={(formData?.sitemap || '')}
                     onChange={(e) => setFormData({
                         ...formData,
-                        sitemap: e.target.value
+                        sitemap: e.target.value.trim()
                     } as Site)}
                 />
 
