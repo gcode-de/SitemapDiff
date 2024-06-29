@@ -1,7 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import SiteList from '../components/SiteList';
 import {Box} from '@mui/material';
-import SiteForm from "../components/SiteForm.tsx";
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
@@ -11,11 +10,10 @@ import axios from 'axios';
 
 type HomeProps = {
     sites: Site[],
-    setSites: React.Dispatch<React.SetStateAction<Site[]>>;
     refreshSites: () => void,
 }
 
-const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) => {
+const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
     const [isCrawling, setIsCrawling] = useState<string[]>([]);
@@ -68,39 +66,19 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
     };
 
     const handleCheckUrl = async (crawlId: string, url: string, newState: boolean) => {
+        console.log("Toggle checkbox:", crawlId, url, newState);
+
         const payload = {
             url: url,
-            checked: newState,
+            checked: newState
         };
 
         try {
-            await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
-
-            setSites((prevSites) =>
-                prevSites.map((site) => {
-                    if (site.crawls.some((crawl) => crawl.id === crawlId)) {
-                        return {
-                            ...site,
-                            crawls: site.crawls.map((crawl) => {
-                                if (crawl.id === crawlId) {
-                                    return {
-                                        ...crawl,
-                                        diffToPrevCrawl: crawl.diffToPrevCrawl.map((item) =>
-                                            item.url === url ? {...item, checked: newState} : item
-                                        ),
-                                    };
-                                }
-                                return crawl;
-                            }),
-                        };
-                    }
-                    return site;
-                })
-            );
+            const response = await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
+            console.log("URL checked status updated successfully:", response.data);
         } catch (error) {
-            console.error('Error updating URL checked status:', error);
+            console.error("Error updating URL checked status:", error);
         }
-
         refreshSites();
     };
 
@@ -148,24 +126,25 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
                 gap: 2,
-                paddingTop: 2,
-                height: 'calc(100vh - 140px)',
-                width: 'calc(100vw - 2rem)',
-                overflowX: 'auto',
-                marginX: 'auto'
+                padding: 2,
+                height: '100%',
+                width: '100vw',
+                overflowX: 'auto'
             }}>
-                <SiteList sites={sites} setEditSiteId={setEditSiteId} handleCheckUrl={handleCheckUrl}
-                          handleCrawlSite={handleCrawlSite} isCrawling={isCrawling}/>
-                {(isAddSite || editSiteId) &&
-                    <Box sx={{flex: '0 0 auto'}}>
-                        <SiteForm data={sites?.find(site => site.id === editSiteId)}
-                                  handleAddSite={handleAddSite}
-                                  handleEditSite={handleEditSite}
-                                  handleDeleteSite={handleDeleteSite}
-                                  handleAbortForm={handleAbortForm}
-                                  refreshSites={refreshSites}/>
-                    </Box>
-                }
+                <SiteList
+                    sites={sites}
+                    setEditSiteId={setEditSiteId}
+                    handleCheckUrl={handleCheckUrl}
+                    handleCrawlSite={handleCrawlSite}
+                    isCrawling={isCrawling}
+                    isAddSite={isAddSite}
+                    editSiteId={editSiteId}
+                    handleAbortForm={handleAbortForm}
+                    refreshSites={refreshSites}
+                    handleAddSite={handleAddSite}
+                    handleEditSite={handleEditSite}
+                    handleDeleteSite={handleDeleteSite}
+                />
             </Box>
             <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={isCrawling}/>
         </>
