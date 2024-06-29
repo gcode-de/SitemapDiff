@@ -9,10 +9,10 @@ import {Crawl} from "../types/Crawl.tsx";
 type SiteItemProps = {
     crawl: Crawl;
     baseURL: string;
-    handleCheckUrl: (crawlId: string, url: string) => void;
+    handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
 }
 
-const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: SiteItemProps) => {
+const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemProps) => {
 
     function truncateTextFromStart(text: string, maxLength: number) {
         if (text.length > maxLength) {
@@ -57,18 +57,18 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
 
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 20;
-    const [diffToPrevCrawlToDisplay, setDiffToPrevCrawlToDisplay] = useState(diffToPrevCrawl?.slice(0, diffLengthLimit));
+    const [diffIsTruncated, setDiffIsTruncated] = useState(true)
 
     return (
         <List sx={{padding: 0}}>
-            {diffToPrevCrawlToDisplay?.map((diff) => (
+            {diffToPrevCrawl?.slice(0, (diffIsTruncated ? diffLengthLimit : 0)).map((diff) => (
                 <ListItem
                     key={crawl.finishedAt + diff.url}
                     secondaryAction={
                         <IconButton edge="end" aria-label="mark as done" sx={{padding: '0px', minHeight: '24px'}}>
                             <Checkbox
                                 checked={diff.checked || false}
-                                onChange={() => handleCheckUrl(crawl.id, diff.url)}
+                                onChange={() => handleCheckUrl(crawl.id, diff.url, !diff.checked)}
                                 inputProps={{'aria-label': 'controlled'}}
                                 sx={{padding: '0px', height: '16px', width: '16px'}}
                             />
@@ -93,7 +93,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                             href={diff.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title={`${baseURL}${diff.url}`} // Full URL on hover
+                            title={diff.url}
                             sx={{
                                 color: 'inherit',
                                 textDecoration: 'none',
@@ -115,16 +115,16 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, baseURL, handleCheckUrl}: Si
                     </Box>
                 </ListItem>
             ))}
-            {diffToPrevCrawl?.length > diffToPrevCrawlToDisplay?.length &&
+            {diffIsTruncated && diffToPrevCrawl?.length > diffLengthLimit &&
                 <ListItem onClick={() => {
-                    setDiffToPrevCrawlToDisplay(diffToPrevCrawl);
+                    setDiffIsTruncated(false);
                 }}
                           sx={{
                               cursor: 'pointer',
                               '&:hover': {
                                   textDecoration: 'underline',
                               }
-                          }}>and {diffToPrevCrawl?.length - diffToPrevCrawlToDisplay?.length} more...</ListItem>}
+                          }}>and {diffToPrevCrawl?.length - diffLengthLimit} more...</ListItem>}
 
             {crawl.prevCrawlId && !diffToPrevCrawl?.length && //show only when there are previous crawls but there are no changes
                 <ListItem sx={{

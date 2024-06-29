@@ -25,16 +25,15 @@ const App: React.FC = () => {
             })
     }
 
-    const loadSites = () => {
-        axios.get(`/api/sites`)
-            .then(response => {
-                setSites(response.data)
-            })
-            .catch(error => {
-                // setSites([])
-                console.error(error);
-            })
-    }
+    const loadSites = async () => {
+        try {
+            const response = await axios.get('/api/sites');
+            setSites(response.data);
+        } catch (error) {
+            console.error('Error fetching sites:', error);
+        }
+    };
+
 
     useEffect(() => {
         loadUser();
@@ -67,7 +66,7 @@ const App: React.FC = () => {
                 <Container sx={{width: '100%'}}>
                     <Header login={login} logout={logout} user={user}/>
                     <Routes>
-                        <Route path="/" element={<Home sites={sites} refreshSites={loadSites}/>}/>
+                        <Route path="/" element={<Home sites={sites} setSites={setSites} refreshSites={loadSites}/>}/>
                     </Routes>
                 </Container>
             </ThemeProvider>

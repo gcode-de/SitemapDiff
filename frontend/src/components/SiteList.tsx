@@ -8,7 +8,7 @@ import LoadingSpinner from "../assets/loadingSpinner.tsx";
 type SiteListProps = {
     sites: Site[];
     setEditSiteId: (siteId: string) => void;
-    handleCheckUrl: (crawlId: string, url: string) => void;
+    handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
     handleCrawlSite: (siteId: string) => void;
     isCrawling: string[];
 }
