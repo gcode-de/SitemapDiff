@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
-import {Container, CssBaseline, ThemeProvider} from '@mui/material';
+import {CssBaseline, ThemeProvider} from '@mui/material';
 import theme from './theme';
 import Header from './components/Header';
 import Home from './pages/Home';
@@ -63,12 +63,10 @@ const App: React.FC = () => {
         <Router>
             <ThemeProvider theme={theme}>
                 <CssBaseline/>
-                <Container sx={{width: '100%'}}>
-                    <Header login={login} logout={logout} user={user}/>
-                    <Routes>
-                        <Route path="/" element={<Home sites={sites} setSites={setSites} refreshSites={loadSites}/>}/>
-                    </Routes>
-                </Container>
+                <Header login={login} logout={logout} user={user}/>
+                <Routes>
+                    <Route path="/" element={<Home sites={sites} setSites={setSites} refreshSites={loadSites}/>}/>
+                </Routes>
             </ThemeProvider>
         </Router>
     );
