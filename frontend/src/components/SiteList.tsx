@@ -36,7 +36,7 @@ const SiteList: React.FC<SiteListProps> = ({
                                                handleDeleteSite
                                            }) => {
     return (
-        <Box sx={{
+        <Box id="scrollContainer" sx={{
             display: 'flex',
             justifyContent: 'start',
             padding: 0,
@@ -52,7 +52,7 @@ const SiteList: React.FC<SiteListProps> = ({
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
-                          height: 'calc(100vh - 160px)',
+                          height: 'calc(100vh - 165px)',
                           scrollSnapAlign: 'start',
                           minWidth: '300px',
                           flex: '0 0 auto'

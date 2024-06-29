@@ -66,39 +66,19 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
     };
 
     const handleCheckUrl = async (crawlId: string, url: string, newState: boolean) => {
+        console.log("Toggle checkbox:", crawlId, url, newState);
+
         const payload = {
             url: url,
-            checked: newState,
+            checked: newState
         };
 
         try {
-            await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
-
-            setSites((prevSites) =>
-                prevSites.map((site) => {
-                    if (site.crawls.some((crawl) => crawl.id === crawlId)) {
-                        return {
-                            ...site,
-                            crawls: site.crawls.map((crawl) => {
-                                if (crawl.id === crawlId) {
-                                    return {
-                                        ...crawl,
-                                        diffToPrevCrawl: crawl.diffToPrevCrawl.map((item) =>
-                                            item.url === url ? {...item, checked: newState} : item
-                                        ),
-                                    };
-                                }
-                                return crawl;
-                            }),
-                        };
-                    }
-                    return site;
-                })
-            );
+            const response = await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
+            console.log("URL checked status updated successfully:", response.data);
         } catch (error) {
-            console.error('Error updating URL checked status:', error);
+            console.error("Error updating URL checked status:", error);
         }
-
         refreshSites();
     };
 
@@ -129,9 +109,9 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
             flexDirection: 'row',
             justifyContent: 'flex-start',
             gap: 2,
-            paddingTop: 2,
-            height: '80vh',
-            width: '95vw',
+            padding: 2,
+            height: 'calc(100% -100px)',
+            width: '100%',
             overflowX: 'auto'
         }}>
             <Typography variant={'h4'}>Loading ...</Typography>
@@ -141,14 +121,13 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
 
     return (
         <>
-            <Box id="scrollContainer" sx={{
+            <Box sx={{
                 display: 'flex',
                 flexDirection: 'row',
                 justifyContent: 'flex-start',
                 gap: 2,
                 padding: 2,
-                height: 'calc(100% - 100px)',
-                width: '100vw',
+                width: '100%',
                 overflowX: 'auto'
             }}>
                 <SiteList
