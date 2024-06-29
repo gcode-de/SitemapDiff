@@ -15,7 +15,7 @@ const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl}: SiteItemProps
         if (listRef.current) {
             listRef.current.scrollTop = listRef.current.scrollHeight;
         }
-    }, [site.crawls]);
+    }, [site.crawls.length]);
 
     return (
         <List ref={listRef} sx={{width: 360, maxHeight: '55vh', overflowY: 'auto'}}>

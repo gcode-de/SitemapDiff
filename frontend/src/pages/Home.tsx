@@ -27,7 +27,6 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                 scrollContainer.scrollLeft = scrollContainer.scrollWidth;
             }
         }
-        console.log("run useEffect")
     }, [isAddSite, editSiteId]);
 
     const handleAddSite = async (formData: Site | null | undefined) => {
@@ -69,16 +68,13 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
     };
 
     const handleCheckUrl = async (crawlId: string, url: string, newState: boolean) => {
-        console.log('Toggle checkbox:', crawlId, url, newState);
-
         const payload = {
             url: url,
             checked: newState,
         };
 
         try {
-            const response = await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
-            console.log('URL checked status updated successfully:', response.data);
+            await axios.put(`/api/crawls/update-url-status/${crawlId}`, payload);
 
             setSites((prevSites) =>
                 prevSites.map((site) => {
@@ -101,7 +97,6 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                     return site;
                 })
             );
-            console.log('Sites state updated:', sites);
         } catch (error) {
             console.error('Error updating URL checked status:', error);
         }

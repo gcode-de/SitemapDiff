@@ -57,11 +57,11 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
 
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 20;
-    const [diffToPrevCrawlToDisplay, setDiffToPrevCrawlToDisplay] = useState(diffToPrevCrawl?.slice(0, diffLengthLimit));
+    const [diffIsTruncated, setDiffIsTruncated] = useState(true)
 
     return (
         <List sx={{padding: 0}}>
-            {diffToPrevCrawlToDisplay?.map((diff) => (
+            {diffToPrevCrawl?.slice(0, (diffIsTruncated ? diffLengthLimit : 0)).map((diff) => (
                 <ListItem
                     key={crawl.finishedAt + diff.url}
                     secondaryAction={
@@ -115,16 +115,16 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
                     </Box>
                 </ListItem>
             ))}
-            {diffToPrevCrawl?.length > diffToPrevCrawlToDisplay?.length &&
+            {diffIsTruncated && diffToPrevCrawl?.length > diffLengthLimit &&
                 <ListItem onClick={() => {
-                    setDiffToPrevCrawlToDisplay(diffToPrevCrawl);
+                    setDiffIsTruncated(false);
                 }}
                           sx={{
                               cursor: 'pointer',
                               '&:hover': {
                                   textDecoration: 'underline',
                               }
-                          }}>and {diffToPrevCrawl?.length - diffToPrevCrawlToDisplay?.length} more...</ListItem>}
+                          }}>and {diffToPrevCrawl?.length - diffLengthLimit} more...</ListItem>}
 
             {crawl.prevCrawlId && !diffToPrevCrawl?.length && //show only when there are previous crawls but there are no changes
                 <ListItem sx={{

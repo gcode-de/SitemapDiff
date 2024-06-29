@@ -29,7 +29,6 @@ const App: React.FC = () => {
         try {
             const response = await axios.get('/api/sites');
             setSites(response.data);
-            console.log("updated sites")
         } catch (error) {
             console.error('Error fetching sites:', error);
         }
