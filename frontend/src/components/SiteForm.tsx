@@ -78,7 +78,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
     return (
         <Card key={'siteForm'} sx={{width: '360px'}}>
             <CardContent>
-                <Typography variant="h6">{data ? "Edit" : "Add"} Site</Typography>
+                <Typography variant="h5" sx={{marginBottom: 3}}>{data ? "Edit" : "Add"} Site</Typography>
                 {error && <Typography color="error">{error}</Typography>}
                 <TextField
                     label="Title"
