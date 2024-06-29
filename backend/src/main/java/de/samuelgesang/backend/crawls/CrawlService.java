@@ -1,15 +1,12 @@
 package de.samuelgesang.backend.crawls;
 
 import de.samuelgesang.backend.url_chunk.UpdateUrlStatusDTO;
-import de.samuelgesang.backend.url_chunk.UrlChunk;
 import de.samuelgesang.backend.url_chunk.UrlChunkRepository;
-import de.samuelgesang.backend.url_chunk.UrlObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Slf4j
 @Service

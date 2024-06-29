@@ -27,6 +27,7 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                 scrollContainer.scrollLeft = scrollContainer.scrollWidth;
             }
         }
+        console.log("run useEffect")
     }, [isAddSite, editSiteId]);
 
     const handleAddSite = async (formData: Site | null | undefined) => {
@@ -100,7 +101,7 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                     return site;
                 })
             );
-            console.log('Sites state updated:', sites); // Fügen Sie dies hinzu, um den aktualisierten State zu protokollieren
+            console.log('Sites state updated:', sites);
         } catch (error) {
             console.error('Error updating URL checked status:', error);
         }
