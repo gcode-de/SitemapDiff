@@ -1,5 +1,5 @@
 import React from 'react';
-import {Box, Button, Card, CardContent, Tooltip, Typography} from '@mui/material';
+import {Box, Button, Card, CardContent, Divider, Tooltip, Typography} from '@mui/material';
 import SiteItem from './SiteItem';
 
 import {Site} from "../types/Site.tsx";
@@ -15,10 +15,27 @@ type SiteListProps = {
 
 const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl, handleCrawlSite, isCrawling}) => {
     return (
-        <Box sx={{display: 'flex', justifyContent: 'space-around', padding: 0, margin: 0, gap: 2, overflow: 'visible'}}>
+        <Box sx={{
+            display: 'flex',
+            justifyContent: 'start',
+            padding: 0,
+            margin: 0,
+            gap: 2,
+            overflowX: 'auto',
+            scrollSnapType: 'x mandatory',
+            scrollPadding: '16px'
+        }}>
             {sites?.map((site) => (
                 <Card key={site.id}
-                      sx={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '75vh'}}>
+                      sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          justifyContent: 'space-between',
+                          height: 'calc(100vh - 160px)',
+                          scrollSnapAlign: 'start',
+                          minWidth: '300px',
+                          flex: '0 0 auto'
+                      }}>
                     <CardContent sx={{flex: '1 1 auto'}}>
                         <Typography variant="h5">{site.name}</Typography>
                         <Tooltip title={
@@ -30,6 +47,7 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                                 {site.baseURL}
                             </Typography>
                         </Tooltip>
+                        <Divider/>
                         <SiteItem site={site} handleCheckUrl={handleCheckUrl}/>
                     </CardContent>
                     <Box sx={{
@@ -37,9 +55,9 @@ const SiteList: React.FC<SiteListProps> = ({sites, setEditSiteId, handleCheckUrl
                         justifyContent: 'space-between',
                         padding: 2
                     }}>
-                        <Button variant="contained" onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
+                        <Button variant="outlined" onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
                         {isCrawling.some(e => e === "all" || e === site.id) && <LoadingSpinner/>}
-                        <Button variant="contained" disabled={isCrawling.some(e => e === "all" || e === site.id)}
+                        <Button variant="outlined" disabled={isCrawling.some(e => e === "all" || e === site.id)}
                                 onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>
                     </Box>
                 </Card>

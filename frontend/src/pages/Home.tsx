@@ -149,9 +149,10 @@ const Home: React.FC<HomeProps> = ({sites, setSites, refreshSites}: HomeProps) =
                 justifyContent: 'flex-start',
                 gap: 2,
                 paddingTop: 2,
-                height: '80vh',
-                width: '95vw',
-                overflowX: 'auto'
+                height: 'calc(100vh - 140px)',
+                width: 'calc(100vw - 2rem)',
+                overflowX: 'auto',
+                marginX: 'auto'
             }}>
                 <SiteList sites={sites} setEditSiteId={setEditSiteId} handleCheckUrl={handleCheckUrl}
                           handleCrawlSite={handleCrawlSite} isCrawling={isCrawling}/>
