@@ -18,6 +18,7 @@ public class Site {
     private String name;
     private String baseURL;
     private String sitemap;
+    private String favicon;
     private String userId;
     private String scrapeCron;
     private List<String> crawlIds;
