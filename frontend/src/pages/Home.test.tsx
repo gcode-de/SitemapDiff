@@ -14,6 +14,7 @@ describe('Home Component', () => {
             name: 'Site 1',
             baseURL: 'https://site1.com',
             sitemap: '',
+            favicon: '',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -23,6 +24,7 @@ describe('Home Component', () => {
             name: 'Site 2',
             baseURL: 'https://site2.com',
             sitemap: '',
+            favicon: '',
             userId: 'user2',
             scrapeCron: '',
             crawls: []
@@ -30,14 +32,13 @@ describe('Home Component', () => {
     ];
 
     const refreshSitesMock = jest.fn();
-    const setSitesMock = jest.fn();
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
     test('renders Home with SiteList', () => {
-        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
         const siteList = screen.getByText('Site 1');
         expect(siteList).toBeInTheDocument();
     });
@@ -45,7 +46,7 @@ describe('Home Component', () => {
     test('calls handleCrawlAllSites when Crawl All button is clicked', async () => {
         mockedAxios.get.mockResolvedValue({data: []});
 
-        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);
@@ -60,7 +61,7 @@ describe('Home Component', () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
         mockedAxios.get.mockRejectedValue(new Error('Network Error'));
 
-        render(<Home sites={sites} setSites={setSitesMock} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);

@@ -38,6 +38,7 @@ describe('SiteForm Component', () => {
             name: 'Test Site',
             baseURL: 'https://testsite.com',
             sitemap: 'https://testsite.com/sitemap.xml',
+            favicon: '',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -89,6 +90,7 @@ describe('SiteForm Component', () => {
             name: 'Test Site',
             baseURL: 'https://testsite.com',
             sitemap: 'https://testsite.com/sitemap.xml',
+            favicon: '',
             userId: 'user1',
             scrapeCron: '',
             crawls: []
@@ -110,6 +112,7 @@ describe('SiteForm Component', () => {
             name: 'Test Site',
             baseURL: 'https://testsite.com',
             sitemap: 'https://testsite.com/sitemap.xml',
+            favicon: '',
             userId: 'user1',
             scrapeCron: '',
             crawls: []

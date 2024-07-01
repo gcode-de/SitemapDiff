@@ -44,7 +44,9 @@ const SiteList: React.FC<SiteListProps> = ({
             gap: 2,
             overflowX: 'auto',
             scrollSnapType: 'x mandatory',
-            scrollPadding: '16px'
+            scrollPadding: '16px',
+            height: 'calc(100vh - 160' +
+                'px)',
         }}>
             {sites?.map((site) => (
                 <Card key={site.id}
@@ -52,13 +54,29 @@ const SiteList: React.FC<SiteListProps> = ({
                           display: 'flex',
                           flexDirection: 'column',
                           justifyContent: 'space-between',
-                          height: 'calc(100vh - 165px)',
+                          height: 'calc(100vh - 165' +
+                              'px)',
                           scrollSnapAlign: 'start',
                           minWidth: '300px',
                           flex: '0 0 auto'
                       }}>
                     <CardContent sx={{flex: '1 1 auto'}}>
-                        <Typography variant="h5">{site.name}</Typography>
+                        <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                            {site.favicon && <Box
+                                component="img"
+                                src={site.favicon}
+                                alt="favicon"
+                                width="16"
+                                height="16"
+                                sx={{
+                                    display: "inline",
+                                    marginRight: 1,
+                                    width: 24,
+                                    height: 24,
+                                }}
+                            />}
+                            <Typography variant="h5">{site.name}</Typography>
+                        </Box>
                         <Tooltip title={
                             <Box>
                                 <Typography variant='caption' display='block'>Sitemap: {site.sitemap}</Typography>
