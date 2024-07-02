@@ -52,6 +52,7 @@ public class SiteService {
         existingSite.setScrapeCron(site.getScrapeCron());
         String favicon = extractFavicon(site.getBaseURL());
         existingSite.setFavicon(favicon);
+        existingSite.setCrawlIds(site.getCrawlIds());
         return siteRepository.save(existingSite);
     }
 
