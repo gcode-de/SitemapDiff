@@ -10,11 +10,15 @@ SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeits
 - **Datenbank-Speicherung**: Inhalte der Sitemaps werden bei jedem Crawl in einer MongoDB-Datenbank gespeichert.
 - **Manuelle und automatische Crawls**: Crawls können manuell gestartet oder per Cronjob automatisch durchgeführt werden.
 - **Änderungserkennung**: Unterschiede zwischen zwei Crawls, wie hinzugefügte oder entfernte URLs, werden übersichtlich angezeigt.
-- **Interaktive URLs**: Geänderte URLs können per Klick besucht, ins Clipboard kopiert oder (in zukünftigen Versionen) per Email verschickt werden.
-- **Geplante Erweiterung - Dashboard Thumbnails**: Am Ende des Projekts soll die Funktion hinzugefügt werden, automatisch Thumbnails für jede getrackte Webseite zu erstellen und im Dashboard anzuzeigen.
+- **Interaktive URLs**: Geänderte URLs können per Klick besucht, ins Clipboard kopiert, als CSV-Datei herunter geladen oder (in zukünftigen Versionen) per Email verschickt werden.
+- **Favicons**: Favicon-Dateien der Webseiten werden gesucht und im Frontend angezeigt um die Bedienung schneller und intuitiver zu machen.
 
 ## Verwendete Technologien
 
+- **Planung**:
+  - **Miro / User Story Map**: Planung der Funktionen und Nutzerinteraktionen: [Miro Board anschauen](https://miro.com/app/board/uXjVK_phI4Q=/)
+  - **Excalidraw**: Als schlanke Alternative zu Adobe XD und Figma wurde hier excalidraw genutzt, um Wireframes für das Layout zu erstellen. Design war für diese App ein untergeoprdneter Faktor, weshalb auf Mockups verzichtet wurde.
+ 
 - **Backend**:
   - **Spring Boot**: Für ein robustes und skalierbares Backend.
   - **Spring Security**: Zur Implementierung des Google-Logins und zur Sicherstellung einer sicheren Authentifizierung.
