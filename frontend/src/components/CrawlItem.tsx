@@ -58,10 +58,11 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 20;
     const [diffIsTruncated, setDiffIsTruncated] = useState(true)
+    const displayedDiff = diffIsTruncated ? diffToPrevCrawl?.slice(0, diffLengthLimit) : diffToPrevCrawl;
 
     return (
         <List sx={{padding: 0}}>
-            {diffToPrevCrawl?.slice(0, (diffIsTruncated ? diffLengthLimit : 0)).map((diff) => (
+            {displayedDiff?.map((diff) => (
                 <ListItem
                     key={crawl.finishedAt + diff.url}
                     secondaryAction={
