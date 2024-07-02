@@ -1,4 +1,4 @@
-name: "Deploy App to Render"
+name: "Deploy App to Fly.io"
 
 on:
   push:
@@ -9,9 +9,6 @@ jobs:
   build-frontend:
     runs-on: ubuntu-latest
     environment: production
-    #    env:
-    #      VITE_BETTERSTACK_TOKEN: ${{ secrets.VITE_BETTERSTACK_TOKEN }}
-
     steps:
       - uses: actions/checkout@v4
 
@@ -53,7 +50,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: RestaurantApp.jar
+          name: SitemapDiff.jar
           path: backend/target/sitemapdiff.jar # must match the finalName in the pom.xml
 
   push-to-docker-hub:
@@ -64,7 +61,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          name: RestaurantApp.jar
+          name: SitemapDiff.jar
           path: backend/target
 
       - name: Login to DockerHub
@@ -88,12 +85,11 @@ jobs:
       name: SitemapDiff
       url: https://sitemapdiff.samuelgesang.de/
     steps:
-      - name: Trigger Render.com Deployment
+      - name: Trigger Fly.io Deployment
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
         run: |
-          curl -X POST "https://api.fly.io/v1/apps/sitemapdiff8/deploys" \
-          -H "Authorization: Bearer ${{ secrets.FLY_API_TOKEN }}" \
+          curl -X POST "https://api.fly.io/apps/sitemapdiff8/deploys" \
+          -H "Authorization: Bearer $FLY_API_TOKEN" \
           -H "Content-Type: application/json" \
           -d '{"strategy":"immediate"}'
-          
-          env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
