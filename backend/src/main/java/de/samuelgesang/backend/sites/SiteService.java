@@ -94,7 +94,7 @@ public class SiteService {
     private String extractFavicon(String baseURL) {
         try {
             Document doc = Jsoup.connect(baseURL).get();
-            Element iconLink = doc.select("link[rel~=(?i)^(shortcut|icon|apple-touch-icon)]").first();
+            Element iconLink = doc.select("link[rel~=(?i)^(shortcut icon|icon|apple-touch-icon|alternate icon|mask-icon|fluid-icon|manifest)]").first();
 
             if (iconLink != null) {
                 String iconUrl = iconLink.attr("href");
