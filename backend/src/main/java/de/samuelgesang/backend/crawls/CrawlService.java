@@ -1,5 +1,7 @@
 package de.samuelgesang.backend.crawls;
 
+import de.samuelgesang.backend.exceptions.ResourceNotFoundException;
+import de.samuelgesang.backend.exceptions.UnauthorizedAccessException;
 import de.samuelgesang.backend.sitemaps.SitemapService;
 import de.samuelgesang.backend.sites.Site;
 import de.samuelgesang.backend.sites.SiteRepository;
@@ -34,7 +36,8 @@ public class CrawlService {
     public Crawl updateUrlCheckedStatus(String crawlId, UpdateUrlStatusDTO updateUrlStatusDTO) {
         log.info("Updating URL checked status for crawlId: {} with DTO: {}", crawlId, updateUrlStatusDTO);
 
-        Crawl crawl = crawlRepository.findById(crawlId).orElseThrow(() -> new IllegalArgumentException("Invalid crawl ID"));
+        Crawl crawl = crawlRepository.findById(crawlId)
+                .orElseThrow(() -> new ResourceNotFoundException("Invalid crawl ID: " + crawlId));
         log.info("Crawl found: {}", crawl);
 
         boolean updated = false;
@@ -60,15 +63,15 @@ public class CrawlService {
     public void deleteCrawl(String crawlId, String userId) {
         Optional<Crawl> optionalCrawl = crawlRepository.findById(crawlId);
         if (optionalCrawl.isEmpty()) {
-            throw new RuntimeException("Crawl not found");
+            throw new ResourceNotFoundException("Crawl not found: " + crawlId);
         }
 
         Crawl crawl = optionalCrawl.get();
         Site site = siteRepository.findById(crawl.getSiteId())
-                .orElseThrow(() -> new RuntimeException("Site not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + crawl.getSiteId()));
 
         if (!site.getUserId().equals(userId)) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedAccessException("Unauthorized to delete crawl for site: " + crawl.getSiteId());
         }
 
         // Remove URL chunks
@@ -83,12 +86,13 @@ public class CrawlService {
             String prevCrawlId = crawlIds.get(index - 1);
             String nextCrawlId = crawlIds.get(index);
 
-            Crawl nextCrawl = crawlRepository.findById(nextCrawlId).orElseThrow(() -> new RuntimeException("Next crawl not found"));
+            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
             nextCrawl.setPrevCrawlId(prevCrawlId);
 
             // Recalculate diffToPrevCrawl
             List<String> prevUrls = sitemapService.loadUrlsFromChunks(crawlRepository.findById(prevCrawlId)
-                    .orElseThrow(() -> new RuntimeException("Previous crawl not found"))
+                    .orElseThrow(() -> new ResourceNotFoundException("Previous crawl not found: " + prevCrawlId))
                     .getUrlChunkIds());
 
             List<String> nextUrls = sitemapService.loadUrlsFromChunks(nextCrawl.getUrlChunkIds());
@@ -100,7 +104,8 @@ public class CrawlService {
         if (index == 0 && !crawlIds.isEmpty()) {
             String nextCrawlId = crawlIds.getFirst();
 
-            Crawl nextCrawl = crawlRepository.findById(nextCrawlId).orElseThrow(() -> new RuntimeException("Next crawl not found"));
+            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
             nextCrawl.setPrevCrawlId(null);
             nextCrawl.setDiffToPrevCrawl(new ArrayList<>());
 
