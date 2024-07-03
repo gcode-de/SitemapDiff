@@ -32,6 +32,13 @@ const Header: React.FC<HeaderProps> = ({login, logout, user}: HeaderProps) => {
                         SitemapDiff
                     </Typography>
                 </Box>
+                <Typography sx={{
+                    display: {
+                        xs: 'none',
+                        s: 'none',
+                        md: 'block'
+                    }
+                }}>Track changes in websites based on their sitemap.xml file.</Typography>
                 {<Typography sx={{
                     display: {
                         xs: 'none',

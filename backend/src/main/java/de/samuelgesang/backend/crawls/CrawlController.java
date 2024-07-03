@@ -82,4 +82,17 @@ public class CrawlController {
         }
     }
 
+    @DeleteMapping("/{crawlId}")
+    public ResponseEntity<String> deleteCrawl(@PathVariable String crawlId, @AuthenticationPrincipal OAuth2User user) {
+        try {
+            Map<String, Object> attributes = user.getAttributes();
+            String userId = (String) attributes.get("sub");
+
+            crawlService.deleteCrawl(crawlId, userId);
+            return ResponseEntity.ok("Crawl deleted successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
 }

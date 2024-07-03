@@ -8,4 +8,6 @@ public interface UrlChunkRepository extends MongoRepository<UrlChunk, String> {
     List<UrlChunk> findByCrawlId(String crawlId);
 
     void deleteByCrawlId(String crawlId);
+
+    void deleteAllByCrawlId(String crawlId);
 }
