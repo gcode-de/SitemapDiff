@@ -8,4 +8,5 @@ public interface CrawlRepository extends MongoRepository<Crawl, String> {
     List<Crawl> findBySiteId(String siteId);
 
     List<Crawl> findByIdIn(List<String> crawlIds);
+    
 }

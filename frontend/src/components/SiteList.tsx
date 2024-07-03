@@ -33,7 +33,7 @@ const SiteList: React.FC<SiteListProps> = ({
                                                refreshSites,
                                                handleAddSite,
                                                handleEditSite,
-                                               handleDeleteSite
+                                               handleDeleteSite,
                                            }) => {
     return (
         <Box id="scrollContainer" sx={{
@@ -87,7 +87,7 @@ const SiteList: React.FC<SiteListProps> = ({
                             </Typography>
                         </Tooltip>
                         <Divider/>
-                        <SiteItem site={site} handleCheckUrl={handleCheckUrl}/>
+                        <SiteItem site={site} handleCheckUrl={handleCheckUrl} refreshSites={refreshSites}/>
                     </CardContent>
                     <Box sx={{
                         display: 'flex',

@@ -1,18 +1,21 @@
 import React, {useState} from 'react';
+import axios from 'axios';
 import {Box, Button, Checkbox, Divider, IconButton, List, ListItem, ListItemText, Typography} from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import DownloadIcon from '@mui/icons-material/Download';
+import DeleteIcon from '@mui/icons-material/Delete';
 import {Crawl} from "../types/Crawl.tsx";
 
 type SiteItemProps = {
     crawl: Crawl;
     baseURL: string;
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
-}
+    refreshSites: () => void;
+};
 
-const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemProps) => {
+const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites}: SiteItemProps) => {
 
     function truncateTextFromStart(text: string, maxLength: number) {
         if (text.length > maxLength) {
@@ -33,8 +36,17 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
         return `${year}-${month}-${day}, ${hours}:${minutes} Uhr`;
     }
 
+    function decodeUrl(encodedUrl: string) {
+        try {
+            return decodeURIComponent(encodedUrl);
+        } catch (e) {
+            console.error('Error decoding URL:', encodedUrl, e);
+            return encodedUrl;
+        }
+    }
+
     const handleCopyUrls = () => {
-        const urlsToCopy = diffToPrevCrawl.map(diff => diff.url).join('\n');
+        const urlsToCopy = diffToPrevCrawl.map(diff => decodeUrl(diff.url)).join('\n');
         navigator.clipboard.writeText(urlsToCopy).then(() => {
             console.log('URLs copied to clipboard');
         }).catch(err => {
@@ -45,7 +57,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
     const handleDownloadCsv = () => {
         const csvContent = "data:text/csv;charset=utf-8,"
             + `Action, URL, checked\n`
-            + diffToPrevCrawl.map(diff => `${diff.action},${diff.url},${diff.checked}`).join('\n');
+            + diffToPrevCrawl.map(diff => `${diff.action},${decodeUrl(diff.url)},${diff.checked}`).join('\n');
         const encodedUri = encodeURI(csvContent);
         const link = document.createElement("a");
         link.setAttribute("href", encodedUri);
@@ -55,9 +67,24 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
         document.body.removeChild(link);
     };
 
+    const handleDeleteCrawl = async (crawlId: string) => {
+        const confirmDelete = window.confirm("Are you sure you want to delete this crawl? Sitemap changes will not be lost but merged with next crawl.");
+        if (!confirmDelete) {
+            return;
+        }
+
+        try {
+            await axios.delete(`/api/crawls/${crawlId}`);
+            refreshSites();
+            console.log('Crawl deleted successfully');
+        } catch (error) {
+            console.error('Failed to delete crawl: ', error);
+        }
+    };
+
     const {diffToPrevCrawl} = crawl;
     const diffLengthLimit = 20;
-    const [diffIsTruncated, setDiffIsTruncated] = useState(true)
+    const [diffIsTruncated, setDiffIsTruncated] = useState(true);
     const displayedDiff = diffIsTruncated ? diffToPrevCrawl?.slice(0, diffLengthLimit) : diffToPrevCrawl;
 
     return (
@@ -91,10 +118,10 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
                         )}
                         <Box
                             component="a"
-                            href={diff.url}
+                            href={decodeUrl(diff.url)}
                             target="_blank"
                             rel="noopener noreferrer"
-                            title={diff.url}
+                            title={decodeUrl(diff.url)}
                             sx={{
                                 color: 'inherit',
                                 textDecoration: 'none',
@@ -110,7 +137,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
                                 minWidth: 0
                             }}
                         >
-                            <ListItemText primary={truncateTextFromStart(diff.url, 36)}
+                            <ListItemText primary={truncateTextFromStart(decodeUrl(diff.url), 36)}
                                           sx={{padding: '0px', margin: '0px', lineHeight: '1', fontSize: '14px'}}/>
                         </Box>
                     </Box>
@@ -146,12 +173,25 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl}: SiteItemPro
                 </>}
 
             <ListItem
-                sx={{bgcolor: 'primary.main', color: 'white', padding: '2px 8px', margin: '2px 0', minHeight: '24px'}}>
+                sx={{
+                    bgcolor: 'primary.main',
+                    color: 'white',
+                    padding: '2px 8px',
+                    margin: '2px 0',
+                    minHeight: '24px',
+                    display: 'flex',
+                    justifyContent: 'space-between'
+                }}>
                 <Typography variant='body2'
                             sx={{
                                 lineHeight: '1',
                                 fontSize: '14px'
                             }}>{formatTimestamp(crawl.finishedAt)}</Typography>
+                <Button variant="text" color="inherit" onClick={() => handleDeleteCrawl(crawl.id)}
+                        endIcon={<DeleteIcon/>}
+                        sx={{textTransform: 'lowercase'}}>
+                    delete
+                </Button>
             </ListItem>
         </List>
     );

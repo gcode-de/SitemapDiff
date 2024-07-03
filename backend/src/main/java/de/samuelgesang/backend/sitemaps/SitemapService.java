@@ -184,7 +184,7 @@ public class SitemapService {
         return urlChunkIds;
     }
 
-    private List<String> loadUrlsFromChunks(List<String> urlChunkIds) {
+    public List<String> loadUrlsFromChunks(List<String> urlChunkIds) {
         List<String> urls = new ArrayList<>();
         for (String chunkId : urlChunkIds) {
             Optional<UrlChunk> chunk = urlChunkRepository.findById(chunkId);
@@ -193,7 +193,7 @@ public class SitemapService {
         return urls;
     }
 
-    private List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
+    public List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
         Set<String> currentUrlSet = new HashSet<>(currentUrls);
         Set<String> previousUrlSet = new HashSet<>(previousUrls);
 
