@@ -96,7 +96,8 @@ public class SitemapService {
                 }
             }
         } catch (Exception e) {
-            throw new SitemapException("Error fetching content from URL: " + url, e);
+            String errorMessage = "Error fetching content from URL: " + url;
+            throw new SitemapException(errorMessage, e);
         } finally {
             if (connection != null) {
                 connection.disconnect();
@@ -166,8 +167,8 @@ public class SitemapService {
 
             return crawl;
         } catch (Exception e) {
-            logger.error("Error crawling site: {}", site.getName(), e);
-            throw new SitemapException("Error crawling site: " + site.getName(), e);
+            String errorMessage = "Error crawling site: " + site.getName();
+            throw new SitemapException(errorMessage, e);
         }
     }
 
@@ -236,8 +237,8 @@ public class SitemapService {
 
             extractUrlsFromSitemap(content, urls);
         } catch (Exception e) {
-            logger.error("Error fetching URLs from sitemap: {}", sitemapUrl, e);
-            throw new SitemapException("Error fetching URLs from sitemap: " + sitemapUrl, e);
+            String errorMessage = "Error fetching URLs from sitemap: " + sitemapUrl;
+            throw new SitemapException(errorMessage, e);
         }
     }
 
@@ -256,18 +257,22 @@ public class SitemapService {
             Pattern sitemapPattern = Pattern.compile("<sitemap>.*?<loc>(.*?)</loc>.*?</sitemap>", Pattern.DOTALL);
             Matcher sitemapMatcher = sitemapPattern.matcher(content);
             while (sitemapMatcher.find()) {
-                try {
-                    String nestedSitemapUrl = sitemapMatcher.group(1).trim();
-                    logger.info("Found nested sitemap URL: {}", nestedSitemapUrl);
-                    fetchUrlsFromSitemap(nestedSitemapUrl, urls);
-                } catch (Exception e) {
-                    logger.error("Error fetching nested sitemap: {}", sitemapMatcher.group(1).trim(), e);
-                    throw new SitemapException("Error fetching nested sitemap: " + sitemapMatcher.group(1).trim(), e);
-                }
+                String nestedSitemapUrl = sitemapMatcher.group(1).trim();
+                fetchNestedSitemapUrls(nestedSitemapUrl, urls);
             }
         } catch (Exception e) {
-            logger.error("Error extracting URLs from sitemap content.", e);
-            throw new SitemapException("Error extracting URLs from sitemap content.", e);
+            String errorMessage = "Error extracting URLs from sitemap content.";
+            throw new SitemapException(errorMessage, e);
         }
     }
+
+    private void fetchNestedSitemapUrls(String nestedSitemapUrl, List<String> urls) throws SitemapException {
+        try {
+            fetchUrlsFromSitemap(nestedSitemapUrl, urls);
+        } catch (Exception e) {
+            String errorMessage = "Error fetching nested sitemap: " + nestedSitemapUrl;
+            throw new SitemapException(errorMessage, e);
+        }
+    }
+
 }

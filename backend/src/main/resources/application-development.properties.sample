@@ -1,10 +1,8 @@
 # Database Configuration
 MONGODB_URI=your_db_uri
 
-# Logging Configuration
-BETTERSTACK_TOKEN=your_betterstack_token
-
 # Authentication Configuration
 APP_URL=http://localhost:5173
-GITHUB_ID=your_github_id
-GITHUB_SECRET=your_github_secret
+GOOGLE_ID=your_google_id
+GOOGLE_SECRET=your_google_secret
+GOOGLE_REDIRECT_URI=http://localhost:8080/login/oauth2/code/google #use https for deployment
