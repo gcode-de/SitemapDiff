@@ -20,16 +20,18 @@ public class Site {
     private String sitemap;
     private String favicon;
     private String userId;
-    private String scrapeCron;
+    private String crawlSchedule;
+    private String email;
     private List<String> crawlIds;
 
-    public Site(String id, String name, String baseURL, String sitemap, String userId, String scrapeCron, List<String> crawlIds) {
+    public Site(String id, String name, String baseURL, String sitemap, String userId, String scrapeCron, List<String> crawlIds, String email, String crawlSchedule) {
         this.id = id;
         this.name = name;
         this.baseURL = baseURL;
         this.sitemap = sitemap;
         this.userId = userId;
-        this.scrapeCron = scrapeCron;
+        this.crawlSchedule = crawlSchedule != null ? crawlSchedule : "";
+        this.email = email != null ? email : "";
         this.crawlIds = crawlIds != null ? crawlIds : new ArrayList<>();
     }
 

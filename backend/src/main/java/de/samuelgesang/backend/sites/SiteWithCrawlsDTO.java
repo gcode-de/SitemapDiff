@@ -16,7 +16,8 @@ public class SiteWithCrawlsDTO {
     private String sitemap;
     private String favicon;
     private String userId;
-    private String scrapeCron;
+    private String crawlSchedule;
+    private String email;
     private List<String> crawlIds;
     private List<Crawl> crawls;
 

@@ -65,7 +65,7 @@ const App: React.FC = () => {
                 <CssBaseline/>
                 <Header login={login} logout={logout} user={user}/>
                 <Routes>
-                    <Route path="/" element={<Home sites={sites} refreshSites={loadSites}/>}/>
+                    <Route path="/" element={<Home sites={sites} refreshSites={loadSites} user={user}/>}/>
                 </Routes>
             </ThemeProvider>
         </Router>

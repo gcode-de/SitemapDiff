@@ -7,13 +7,15 @@ import {createSite, deleteSite, updateSite} from '../api';
 import Typography from "@mui/material/Typography";
 import LoadingSpinner from '../assets/loadingSpinner'
 import axios from 'axios';
+import {User} from "../types/User.tsx";
 
 type HomeProps = {
     sites: Site[],
     refreshSites: () => void,
+    user: User | null | undefined
 }
 
-const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
+const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
     const [isAddSite, setIsAddSite] = useState<boolean>(false);
     const [editSiteId, setEditSiteId] = useState<string | null>(null);
     const [isCrawling, setIsCrawling] = useState<string[]>([]);
@@ -137,6 +139,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites}: HomeProps) => {
                     handleAddSite={handleAddSite}
                     handleEditSite={handleEditSite}
                     handleDeleteSite={handleDeleteSite}
+                    userMail={user?.email}
                 />
             </Box>
             <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={isCrawling}/>

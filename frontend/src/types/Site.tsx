@@ -7,6 +7,7 @@ export type Site = {
     sitemap: string;
     favicon: string;
     userId: string;
-    scrapeCron: string;
+    crawlSchedule: string;
+    email: string;
     crawls: Crawl[]
 }

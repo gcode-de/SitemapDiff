@@ -19,6 +19,7 @@ type SiteListProps = {
     handleAddSite: (site: Site | undefined | null) => void;
     handleEditSite: (site: Site | undefined | null) => void;
     handleDeleteSite: (id: string) => void;
+    userMail: String | undefined;
 }
 
 const SiteList: React.FC<SiteListProps> = ({
@@ -34,6 +35,7 @@ const SiteList: React.FC<SiteListProps> = ({
                                                handleAddSite,
                                                handleEditSite,
                                                handleDeleteSite,
+                                               userMail,
                                            }) => {
     return (
         <Box id="scrollContainer" sx={{
@@ -118,6 +120,7 @@ const SiteList: React.FC<SiteListProps> = ({
                         handleAddSite={handleAddSite}
                         handleEditSite={handleEditSite}
                         handleDeleteSite={handleDeleteSite}
+                        userMail={userMail}
                     />
                 </Box>
             )}
