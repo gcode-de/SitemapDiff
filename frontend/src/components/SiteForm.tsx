@@ -9,7 +9,7 @@ import {
     MenuItem,
     Select,
     FormControl,
-    InputLabel, SelectChangeEvent
+    InputLabel, SelectChangeEvent, Divider
 } from '@mui/material';
 import {Site} from '../types/Site';
 import {fetchSitemap} from '../api';
@@ -88,13 +88,6 @@ const SiteForm: React.FC<SiteFormProps> = ({
     };
 
     const handleSubmit = async () => {
-        if (formData?.email === undefined) {
-            setFormData(prevFormData => ({
-                ...prevFormData,
-                email: userMail || '',
-            } as Site));
-        }
-
         if (data) {
             handleEditSite(formData);
         } else {
@@ -102,6 +95,13 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
         refreshSites();
         handleAbortForm();
+    };
+
+    const handleSuggestionClick = () => {
+        setFormData((prevFormData) => ({
+            ...prevFormData,
+            email: userMail,
+        } as Site));
     };
 
     return (
@@ -145,15 +145,24 @@ const SiteForm: React.FC<SiteFormProps> = ({
                         sitemap: e.target.value.trim()
                     } as Site)}
                 />
+                <Divider sx={{marginBottom: 2}}/>
                 <TextField
-                    label="Email"
+                    label="Email to receive scheduled crawl results"
                     fullWidth
                     sx={{marginBottom: 2}}
                     name="email"
                     value={formData?.email === null ? userMail : formData?.email || ''}
                     onChange={handleChange}
-                    helperText="Email to receive crawl results"
                 />
+                {userMail && formData?.email !== userMail && (
+                    <Typography
+                        variant="body2"
+                        sx={{cursor: 'pointer', textDecoration: 'underline', marginTop: '-10px', marginBottom: '10px'}}
+                        onClick={handleSuggestionClick}
+                    >
+                        Use {userMail}
+                    </Typography>
+                )}
                 <FormControl fullWidth sx={{marginBottom: 2}}>
                     <InputLabel id="crawlSchedule-label">Crawl Schedule</InputLabel>
                     <Select
