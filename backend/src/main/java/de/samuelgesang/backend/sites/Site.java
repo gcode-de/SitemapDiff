@@ -24,11 +24,12 @@ public class Site {
     private String email;
     private List<String> crawlIds;
 
-    public Site(String id, String name, String baseURL, String sitemap, String userId, String scrapeCron, List<String> crawlIds, String email, String crawlSchedule) {
+    public Site(String id, String name, String baseURL, String sitemap, String favicon, String userId, List<String> crawlIds, String email, String crawlSchedule) {
         this.id = id;
         this.name = name;
         this.baseURL = baseURL;
         this.sitemap = sitemap;
+        this.favicon = favicon;
         this.userId = userId;
         this.crawlSchedule = crawlSchedule != null ? crawlSchedule : "";
         this.email = email != null ? email : "";
@@ -36,7 +37,7 @@ public class Site {
     }
 
     // Default constructor for Spring Data
-    public Site() {
-        this.crawlIds = new ArrayList<>();
-    }
+//    public Site() {
+//        this.crawlIds = new ArrayList<>();
+//    }
 }
