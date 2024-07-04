@@ -89,7 +89,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites
 
     return (
         <List sx={{padding: 0}}>
-            {displayedDiff?.map((diff) => (
+            {displayedDiff?.sort((a, b) => a.url.localeCompare(b.url)).sort((a, b) => a.action.localeCompare(b.action)).map((diff) => (
                 <ListItem
                     key={crawl.finishedAt + diff.url}
                     secondaryAction={
