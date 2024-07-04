@@ -49,10 +49,11 @@ public class SiteService {
         existingSite.setName(site.getName());
         existingSite.setBaseURL(site.getBaseURL());
         existingSite.setSitemap(site.getSitemap());
-        existingSite.setScrapeCron(site.getScrapeCron());
+        existingSite.setCrawlSchedule(site.getCrawlSchedule());
         String favicon = extractFavicon(site.getBaseURL());
         existingSite.setFavicon(favicon);
         existingSite.setCrawlIds(site.getCrawlIds());
+        existingSite.setEmail(site.getEmail());
         return siteRepository.save(existingSite);
     }
 
@@ -84,11 +85,16 @@ public class SiteService {
         dto.setSitemap(site.getSitemap());
         dto.setFavicon(site.getFavicon());
         dto.setUserId(site.getUserId());
-        dto.setScrapeCron(site.getScrapeCron());
+        dto.setCrawlSchedule(site.getCrawlSchedule());
         dto.setCrawlIds(site.getCrawlIds());
+        dto.setEmail(site.getEmail());
         List<Crawl> crawls = crawlRepository.findByIdIn(site.getCrawlIds());
         dto.setCrawls(crawls);
         return dto;
+    }
+
+    public List<Site> getAllSitesWithSchedule(String schedule) {
+        return siteRepository.findByCrawlSchedule(schedule);
     }
 
     private String extractFavicon(String baseURL) {

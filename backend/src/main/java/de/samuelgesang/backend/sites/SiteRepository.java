@@ -9,4 +9,6 @@ public interface SiteRepository extends MongoRepository<Site, String> {
     List<Site> findByUserId(String userId);
 
     Optional<Site> findByIdAndUserId(String id, String userId);
+
+    List<Site> findByCrawlSchedule(String crawlSchedule);
 }

@@ -1,5 +1,16 @@
 import React, {ChangeEvent, useEffect, useState} from 'react';
-import {Box, Button, Card, CardContent, TextField, Typography} from '@mui/material';
+import {
+    Box,
+    Button,
+    Card,
+    CardContent,
+    TextField,
+    Typography,
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel, SelectChangeEvent
+} from '@mui/material';
 import {Site} from '../types/Site';
 import {fetchSitemap} from '../api';
 
@@ -10,6 +21,7 @@ type SiteFormProps = {
     handleAddSite: (site: Site | undefined | null) => void,
     handleEditSite: (site: Site | undefined | null) => void,
     handleDeleteSite: (id: string) => void,
+    userMail: String | undefined,
 }
 
 const SiteForm: React.FC<SiteFormProps> = ({
@@ -18,18 +30,28 @@ const SiteForm: React.FC<SiteFormProps> = ({
                                                refreshSites,
                                                handleAddSite,
                                                handleEditSite,
-                                               handleDeleteSite
+                                               handleDeleteSite,
+                                               userMail
                                            }: SiteFormProps) => {
 
     const [formData, setFormData] = useState<Site | undefined | null>(data);
     const [isFormValid, setIsFormValid] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    useEffect(() => {
+        if (!data) {
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                email: userMail || '',
+            } as Site));
+        }
+    }, [data, userMail]);
+
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
         const {name, value} = e.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
-            [name]: value.trim(),
+            [name as string]: value.trim(),
         } as Site));
     };
 
@@ -66,6 +88,13 @@ const SiteForm: React.FC<SiteFormProps> = ({
     };
 
     const handleSubmit = async () => {
+        if (formData?.email === undefined) {
+            setFormData(prevFormData => ({
+                ...prevFormData,
+                email: userMail || '',
+            } as Site));
+        }
+
         if (data) {
             handleEditSite(formData);
         } else {
@@ -116,6 +145,30 @@ const SiteForm: React.FC<SiteFormProps> = ({
                         sitemap: e.target.value.trim()
                     } as Site)}
                 />
+                <TextField
+                    label="Email"
+                    fullWidth
+                    sx={{marginBottom: 2}}
+                    name="email"
+                    value={formData?.email === null ? userMail : formData?.email || ''}
+                    onChange={handleChange}
+                    helperText="Email to receive crawl results"
+                />
+                <FormControl fullWidth sx={{marginBottom: 2}}>
+                    <InputLabel id="crawlSchedule-label">Crawl Schedule</InputLabel>
+                    <Select
+                        labelId="crawlSchedule-label"
+                        name="crawlSchedule"
+                        value={formData?.crawlSchedule || 'never'}
+                        onChange={handleChange}
+                        label="Crawl Schedule"
+                    >
+                        <MenuItem value="never"><em>Never</em></MenuItem>
+                        <MenuItem value="daily">Daily</MenuItem>
+                        <MenuItem value="weekly">Weekly</MenuItem>
+                        <MenuItem value="monthly">Monthly</MenuItem>
+                    </Select>
+                </FormControl>
 
                 <Box>
                     {data &&

@@ -6,3 +6,9 @@ APP_URL=http://localhost:5173
 GOOGLE_ID=your_google_id
 GOOGLE_SECRET=your_google_secret
 GOOGLE_REDIRECT_URI=http://localhost:8080/login/oauth2/code/google #use https for deployment
+
+#Mail
+MAIL_HOST=mail host e.g. smtp.gmail.com
+MAIL_USER=username for smtp server
+MAIL_PASSWORD=password for smtp server (you probably have to create an app password for gmail)
+MAIL_TEST_RECIPIENT=recipient for test mails
