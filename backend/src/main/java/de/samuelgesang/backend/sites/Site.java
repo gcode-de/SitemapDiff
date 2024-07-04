@@ -35,9 +35,4 @@ public class Site {
         this.email = email != null ? email : "";
         this.crawlIds = crawlIds != null ? crawlIds : new ArrayList<>();
     }
-
-    // Default constructor for Spring Data
-//    public Site() {
-//        this.crawlIds = new ArrayList<>();
-//    }
 }

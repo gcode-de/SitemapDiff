@@ -80,11 +80,9 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
 
     const handleCrawlSite = async (siteId: string) => {
         setIsCrawling(prevState => [...prevState, siteId]);
-        console.log("crawl ", siteId);
 
         try {
-            const response = await axios.get(`/api/crawls/start/${siteId}`);
-            console.log("Crawl site response:", response.data);
+            await axios.get(`/api/crawls/start/${siteId}`);
         } catch (error) {
             console.error("Error crawling site:", error);
         } finally {

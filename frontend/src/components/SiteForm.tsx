@@ -21,7 +21,7 @@ type SiteFormProps = {
     handleAddSite: (site: Site | undefined | null) => void,
     handleEditSite: (site: Site | undefined | null) => void,
     handleDeleteSite: (id: string) => void,
-    userMail: string | undefined,
+    userMail: String | undefined,
 }
 
 const SiteForm: React.FC<SiteFormProps> = ({
@@ -51,7 +51,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
         const {name, value} = e.target;
         setFormData((prevFormData) => ({
             ...prevFormData,
-            [name as string]: value,
+            [name as string]: value.trim(),
         } as Site));
     };
 
@@ -103,8 +103,6 @@ const SiteForm: React.FC<SiteFormProps> = ({
         refreshSites();
         handleAbortForm();
     };
-
-    console.log(formData?.email)
 
     return (
         <Card key={'siteForm'} sx={{width: '360px'}}>

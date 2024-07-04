@@ -3,6 +3,7 @@ import Home from './Home';
 import '@testing-library/jest-dom';
 import {Site} from '../types/Site';
 import axios from 'axios';
+import {User} from "../types/User.tsx";
 
 jest.mock('axios');
 const mockedAxios = axios as jest.Mocked<typeof axios>;
@@ -16,7 +17,8 @@ describe('Home Component', () => {
             sitemap: '',
             favicon: '',
             userId: 'user1',
-            scrapeCron: '',
+            crawlSchedule: '',
+            email: '',
             crawls: []
         },
         {
@@ -26,10 +28,18 @@ describe('Home Component', () => {
             sitemap: '',
             favicon: '',
             userId: 'user2',
-            scrapeCron: '',
+            crawlSchedule: '',
+            email: '',
             crawls: []
         }
     ];
+
+    const user: User = {
+        name: "string",
+        email: "string",
+        id: "string",
+        picture: "string"
+    }
 
     const refreshSitesMock = jest.fn();
 
@@ -38,7 +48,7 @@ describe('Home Component', () => {
     });
 
     test('renders Home with SiteList', () => {
-        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock} user={user}/>);
         const siteList = screen.getByText('Site 1');
         expect(siteList).toBeInTheDocument();
     });
@@ -46,7 +56,7 @@ describe('Home Component', () => {
     test('calls handleCrawlAllSites when Crawl All button is clicked', async () => {
         mockedAxios.get.mockResolvedValue({data: []});
 
-        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock} user={user}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);
@@ -61,7 +71,7 @@ describe('Home Component', () => {
         const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
         mockedAxios.get.mockRejectedValue(new Error('Network Error'));
 
-        render(<Home sites={sites} refreshSites={refreshSitesMock}/>);
+        render(<Home sites={sites} refreshSites={refreshSitesMock} user={user}/>);
 
         const crawlAllButton = screen.getByRole('button', {name: /crawl all/i});
         fireEvent.click(crawlAllButton);

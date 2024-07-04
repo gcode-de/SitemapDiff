@@ -14,6 +14,7 @@ const defaultProps = {
     handleAbortForm: mockHandleAbortForm,
     refreshSites: jest.fn(),
     data: null,
+    userMail: "",
 };
 
 
@@ -40,7 +41,8 @@ describe('SiteForm Component', () => {
             sitemap: 'https://testsite.com/sitemap.xml',
             favicon: '',
             userId: 'user1',
-            scrapeCron: '',
+            crawlSchedule: "",
+            email: "",
             crawls: []
         };
 
@@ -92,7 +94,8 @@ describe('SiteForm Component', () => {
             sitemap: 'https://testsite.com/sitemap.xml',
             favicon: '',
             userId: 'user1',
-            scrapeCron: '',
+            crawlSchedule: "",
+            email: "",
             crawls: []
         };
 
@@ -114,7 +117,8 @@ describe('SiteForm Component', () => {
             sitemap: 'https://testsite.com/sitemap.xml',
             favicon: '',
             userId: 'user1',
-            scrapeCron: '',
+            crawlSchedule: "",
+            email: "",
             crawls: []
         };
 
