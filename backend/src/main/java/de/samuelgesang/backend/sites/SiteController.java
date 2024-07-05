@@ -1,8 +1,10 @@
 package de.samuelgesang.backend.sites;
 
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,6 +13,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/sites")
+@Validated
 public class SiteController {
 
     private final SiteService siteService;
@@ -37,23 +40,27 @@ public class SiteController {
     }
 
     @PostMapping
-    public Site createSite(@RequestBody Site site, @AuthenticationPrincipal OAuth2User user) {
+    public ResponseEntity<Site> createSite(@Valid @RequestBody SiteCreateDTO siteCreateDTO, @AuthenticationPrincipal OAuth2User user) {
         String userId = getUserId(user);
-        site.setUserId(userId);
-        return siteService.createSite(site);
+        siteCreateDTO.setUserId(userId);
+        Site site = siteService.createSite(siteCreateDTO);
+        return ResponseEntity.ok(site);
     }
 
     @PutMapping("/{id}")
-    public Site updateSite(@PathVariable String id, @RequestBody Site site, @AuthenticationPrincipal OAuth2User user) {
+    public ResponseEntity<Site> updateSite(@PathVariable String id, @Valid @RequestBody SiteUpdateDTO siteUpdateDTO, @AuthenticationPrincipal OAuth2User user) {
         String userId = getUserId(user);
-        site.setUserId(userId);
-        return siteService.updateSite(id, site);
+        siteUpdateDTO.setId(id);
+        siteUpdateDTO.setUserId(userId);
+        Site site = siteService.updateSite(siteUpdateDTO);
+        return ResponseEntity.ok(site);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteSite(@PathVariable String id, @AuthenticationPrincipal OAuth2User user) {
+    public ResponseEntity<Void> deleteSite(@PathVariable String id, @AuthenticationPrincipal OAuth2User user) {
         String userId = getUserId(user);
         siteService.deleteSite(id, userId);
+        return ResponseEntity.noContent().build();
     }
 
     private String getUserId(OAuth2User user) {
