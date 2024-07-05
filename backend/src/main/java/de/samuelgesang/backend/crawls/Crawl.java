@@ -6,6 +6,7 @@ import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -19,5 +20,5 @@ public class Crawl {
     private String finishedAt;
     private String prevCrawlId;
     private List<String> urlChunkIds;
-    private List<CrawlDiffItem> diffToPrevCrawl;
+    private List<CrawlDiffItem> diffToPrevCrawl = new ArrayList<>();
 }
