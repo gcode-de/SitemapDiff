@@ -38,13 +38,13 @@ public class SiteScheduledService {
         this.crawlRepository = crawlRepository;
     }
 
-//    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
-//    public void testScheduledCrawls() {
-//        List<Site> sites = siteService.getAllSitesWithSchedule("daily");
-//        for (Site site : sites) {
-//            performCrawl(site);
-//        }
-//    }
+    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
+    public void testScheduledCrawls() {
+        List<Site> sites = siteService.getAllSitesWithSchedule("daily");
+        for (Site site : sites) {
+            performCrawl(site);
+        }
+    }
 
     @Scheduled(cron = "0 0 0 * * *") // Runs every day at midnight
     public void scheduleDailyCrawls() {
@@ -103,36 +103,29 @@ public class SiteScheduledService {
         message.setTo(site.getEmail());
         message.setSubject("Crawl Results for " + site.getName());
 
-        StringBuilder emailContent = new StringBuilder();
-        emailContent.append("Crawl results for site: ").append(site.getName()).append("\n");
-        emailContent.append("Crawl frequency: ").append(site.getCrawlSchedule()).append("\n");
-        emailContent.append("Crawl date and time: ").append(formatTimestamp(crawl.getFinishedAt())).append("\n");
-
-        if (crawl.getPrevCrawlId() != null) {
-            Crawl prevCrawl = crawlRepository.findById(crawl.getPrevCrawlId()).orElse(null);
-            if (prevCrawl != null) {
-                emailContent.append("Previous crawl date and time: ").append(formatTimestamp(prevCrawl.getFinishedAt())).append("\n");
-            }
-        }
-
-        List<CrawlDiffItem> diffItems = crawl.getDiffToPrevCrawl();
-        if (diffItems.isEmpty()) {
-            emailContent.append("\nNo changes found.\n");
+        List<CrawlDiffItem> diffToPrevCrawl = crawl.getDiffToPrevCrawl();
+        if (diffToPrevCrawl == null || diffToPrevCrawl.isEmpty()) {
+            message.setText("No changes");
         } else {
-            emailContent.append("\nDifferences found (showing up to 300 entries):\n");
+            StringBuilder sb = new StringBuilder();
+            sb.append("Site: ").append(site.getName()).append("\n");
+            sb.append("Crawl Schedule: ").append(site.getCrawlSchedule()).append("\n");
+            sb.append("Crawl Date: ").append(formatTimestamp(crawl.getFinishedAt())).append("\n");
 
-            int limit = Math.min(diffItems.size(), 300);
-            for (int i = 0; i < limit; i++) {
-                CrawlDiffItem item = diffItems.get(i);
-                emailContent.append(item.getAction()).append(": ").append(item.getUrl()).append("\n");
+            if (crawl.getPrevCrawlId() != null) {
+                crawlRepository.findById(crawl.getPrevCrawlId()).ifPresent(prevCrawl -> sb.append("Previous Crawl Date: ").append(formatTimestamp(prevCrawl.getFinishedAt())).append("\n"));
             }
 
-            if (diffItems.size() > 300) {
-                emailContent.append("\n...and ").append(diffItems.size() - 300).append(" more entries.\n");
+            sb.append("Crawl differences: \n");
+            diffToPrevCrawl.stream().limit(300).forEach(item -> sb.append(item.toString()).append("\n"));
+
+            if (diffToPrevCrawl.size() > 300) {
+                sb.append("\n...and more");
             }
+
+            message.setText(sb.toString());
         }
 
-        message.setText(emailContent.toString());
 
         try {
             mailSender.send(message);
