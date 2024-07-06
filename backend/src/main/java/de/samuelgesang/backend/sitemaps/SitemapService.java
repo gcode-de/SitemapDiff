@@ -44,7 +44,7 @@ public class SitemapService {
 
         for (String protocol : protocols) {
             for (String subdomain : subdomains) {
-                String sitemapUrl = protocol + subdomain + removeProtocol(baseURL) + "/sitemap.xml";
+                String sitemapUrl = protocol + subdomain + removeProtocolAndSubdomain(baseURL) + "/sitemap.xml";
                 if (isValidSitemap(sitemapUrl)) {
                     return sitemapUrl;
                 }
@@ -109,15 +109,20 @@ public class SitemapService {
         return content.trim().startsWith("<");
     }
 
-    private String removeProtocol(String urlString) {
+    private String removeProtocolAndSubdomain(String urlString) {
         if (urlString.startsWith("http://")) {
-            return urlString.substring(7);
+            urlString = urlString.substring(7);
         } else if (urlString.startsWith("https://")) {
-            return urlString.substring(8);
-        } else {
-            return urlString;
+            urlString = urlString.substring(8);
         }
+
+        if (urlString.startsWith("www.")) {
+            urlString = urlString.substring(4);
+        }
+
+        return urlString;
     }
+
 
     private String removeTrailingSlash(String urlString) {
         if (urlString.endsWith("/")) {

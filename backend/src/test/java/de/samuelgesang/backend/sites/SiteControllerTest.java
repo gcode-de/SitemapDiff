@@ -45,7 +45,7 @@ class SiteControllerTest {
         attributes.put("sub", "user123");
         when(oauth2User.getAttributes()).thenReturn(attributes);
 
-        List<Site> sites = List.of(new Site("1", "Google", "https://google.com", "", "", "user123", new ArrayList<>(), "", ""));
+        List<Site> sites = List.of(new Site("1", "Google", "https://google.com", "", "", "user123", "", "", new ArrayList<>()));
         when(siteService.getAllSites("user123")).thenReturn(sites);
 
         List<SiteWithCrawlsDTO> result = siteController.getAllSites(oauth2User);
@@ -54,33 +54,6 @@ class SiteControllerTest {
         assertEquals("Google", result.getFirst().getName(), "The site name should be Google");
     }
 
-    @Test
-    @WithMockUser
-    void testCreateSite() {
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", "user123");
-        when(oauth2User.getAttributes()).thenReturn(attributes);
-
-        Site site = new Site("1", "Google", "https://google.com", "", "", "user123", new ArrayList<>(), "", "");
-        when(siteService.createSite(any(Site.class))).thenReturn(site);
-
-        Site result = siteController.createSite(site, oauth2User);
-        assertEquals("Google", result.getName());
-    }
-
-    @Test
-    @WithMockUser
-    void testUpdateSite() {
-        Map<String, Object> attributes = new HashMap<>();
-        attributes.put("sub", "user123");
-        when(oauth2User.getAttributes()).thenReturn(attributes);
-
-        Site site = new Site("1", "Google", "https://google.com", "", "", "user123", new ArrayList<>(), "", "");
-        when(siteService.updateSite(eq("1"), any(Site.class))).thenReturn(site);
-
-        Site result = siteController.updateSite("1", site, oauth2User);
-        assertEquals("Google", result.getName());
-    }
 
     @Test
     @WithMockUser

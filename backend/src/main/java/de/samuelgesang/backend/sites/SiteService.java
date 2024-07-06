@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,10 +39,36 @@ public class SiteService {
         return siteRepository.findById(id);
     }
 
-    public Site createSite(Site site) {
+    public Site createSite(SiteCreateDTO siteCreateDTO) {
+        Site site = new Site();
+        site.setName(siteCreateDTO.getName());
+        site.setBaseURL(siteCreateDTO.getBaseURL());
+        site.setSitemap(siteCreateDTO.getSitemap());
+        site.setUserId(siteCreateDTO.getUserId());
+        site.setCrawlSchedule(siteCreateDTO.getCrawlSchedule());
+        site.setEmail(siteCreateDTO.getEmail());
+        site.setCrawlIds(new ArrayList<>());
+
         String favicon = extractFavicon(site.getBaseURL());
         site.setFavicon(favicon);
+
         return siteRepository.save(site);
+    }
+
+    public Site updateSite(SiteUpdateDTO siteUpdateDTO) {
+        Site existingSite = siteRepository.findById(siteUpdateDTO.getId())
+                .orElseThrow(() -> new RuntimeException("Site not found"));
+
+        existingSite.setName(siteUpdateDTO.getName());
+        existingSite.setBaseURL(siteUpdateDTO.getBaseURL());
+        existingSite.setSitemap(siteUpdateDTO.getSitemap());
+        existingSite.setCrawlSchedule(siteUpdateDTO.getCrawlSchedule());
+        existingSite.setEmail(siteUpdateDTO.getEmail());
+
+        String favicon = extractFavicon(existingSite.getBaseURL());
+        existingSite.setFavicon(favicon);
+
+        return siteRepository.save(existingSite);
     }
 
     public Site updateSite(String id, Site site) {
