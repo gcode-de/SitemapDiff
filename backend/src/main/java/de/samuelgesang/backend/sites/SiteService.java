@@ -125,6 +125,22 @@ public class SiteService {
     }
 
     private String extractFavicon(String baseURL) {
+        String[] prefixes = {"http://", "https://"};
+        String[] domains = {"", "www."};
+
+        for (String prefix : prefixes) {
+            for (String domain : domains) {
+                String testURL = prefix + domain + baseURL;
+                String faviconURL = tryExtractFavicon(testURL);
+                if (faviconURL != null) {
+                    return faviconURL;
+                }
+            }
+        }
+        return null;
+    }
+
+    private String tryExtractFavicon(String baseURL) {
         try {
             Document doc = Jsoup.connect(baseURL).get();
             Element iconLink = doc.select("link[rel~=(?i)^(shortcut icon|icon|apple-touch-icon|alternate icon|mask-icon|fluid-icon|manifest)]").first();
@@ -140,8 +156,9 @@ public class SiteService {
                 return URI.create(baseURL).resolve("/favicon.ico").toString();
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            // Suppress the stack trace to avoid cluttering the logs
             return null;
         }
     }
+
 }

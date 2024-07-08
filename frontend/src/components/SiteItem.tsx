@@ -27,7 +27,7 @@ const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl, refreshSites}:
                 overflowY: 'auto'
             }}>
             {site.crawls?.map((crawl) => (
-                <CrawlItem key={crawl.id + crawl.finishedAt} crawl={crawl} baseURL={site.baseURL}
+                <CrawlItem key={crawl.id + crawl.finishedAt} crawl={crawl}
                            handleCheckUrl={handleCheckUrl} refreshSites={refreshSites}/>
             ))}
         </List>

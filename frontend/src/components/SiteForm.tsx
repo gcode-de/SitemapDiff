@@ -21,7 +21,7 @@ type SiteFormProps = {
     handleAddSite: (site: Site | undefined | null) => void,
     handleEditSite: (site: Site | undefined | null) => void,
     handleDeleteSite: (id: string) => void,
-    userMail: String | undefined,
+    userMail: string | undefined,
 }
 
 const SiteForm: React.FC<SiteFormProps> = ({
@@ -47,12 +47,48 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     }, [data, userMail]);
 
+    const extractSecondLevelDomain = (url: string): string => {
+        try {
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'http://' + url;
+            }
+            const domain = new URL(url).hostname;
+            const domainParts = domain.split('.');
+
+            let extractedDomain = '';
+            if (domainParts.length > 2) {
+                extractedDomain = domainParts.slice(-2, -1)[0] !== 'www' ? domainParts.slice(-2, -1)[0] : domainParts.slice(-3, -2)[0];
+            } else if (domainParts.length === 2) {
+                extractedDomain = domainParts[0] !== 'www' ? domainParts[0] : '';
+            }
+
+            if (extractedDomain) {
+                return extractedDomain.charAt(0).toUpperCase() + extractedDomain.slice(1);
+            }
+            return '';
+        } catch (error) {
+            return '';
+        }
+    };
+
+
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement> | SelectChangeEvent<string>) => {
         const {name, value} = e.target;
-        setFormData((prevFormData) => ({
-            ...prevFormData,
-            [name as string]: value.trim(),
-        } as Site));
+        setFormData((prevFormData) => {
+            const updatedFormData = {
+                ...prevFormData,
+                [name as string]: value.trim(),
+            } as Site;
+
+            if (name === 'baseURL' && !updatedFormData.name) {
+                const secondLevelDomain = extractSecondLevelDomain(value.trim());
+                if (secondLevelDomain) {
+                    updatedFormData.name = secondLevelDomain;
+                }
+            }
+
+            return updatedFormData;
+        });
     };
 
     useEffect(() => {
@@ -63,18 +99,8 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     }, [formData]);
 
-    const isURLValid = (url: string | undefined): boolean => {
-        if (!url) return false;
-        const pattern = /^(https?:\/\/)/;
-        return pattern.test(url);
-    };
-
     const findSitemapByBaseURL = async (url: string | undefined): Promise<string> => {
         if (!url) throw new Error("No URL provided.");
-        if (!isURLValid(url)) {
-            setError("URL must start with http:// or https://");
-            return "";
-        }
 
         try {
             const sitemap = await fetchSitemap(url);
@@ -126,11 +152,9 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     required={true}
                     value={formData?.baseURL || ''}
                     onChange={handleChange}
-                    helperText={formData?.baseURL && !isURLValid(formData.baseURL) ? "URL must start with http:// or https://" : ""}
-                    error={!!(formData?.baseURL && !isURLValid(formData.baseURL))}
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
-                        disabled={!formData?.baseURL || !isURLValid(formData.baseURL)}
+                        disabled={!formData?.baseURL}
                         onClick={() => findSitemapByBaseURL(formData?.baseURL)}>Find Sitemap</Button>
                 <TextField
                     label="Enter Sitemap-URL manually"
