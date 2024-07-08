@@ -93,7 +93,9 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
 
     const handleCrawlAllSites = async () => {
         sites.forEach((site: Site) => {
-            handleCrawlSite(site.id)
+            if (isCrawling.some(s => s !== site.id)) {
+                handleCrawlSite(site.id)
+            }
         })
     };
 
@@ -140,8 +142,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
                     userMail={user?.email}
                 />
             </Box>
-            <Footer setIsAddSite={setIsAddSite} editSiteId={editSiteId} handleCrawlAllSites={handleCrawlAllSites}
-                    isCrawling={isCrawling}/>
+            <Footer setIsAddSite={setIsAddSite} editSiteId={editSiteId} handleCrawlAllSites={handleCrawlAllSites}/>
         </>
     );
 };
