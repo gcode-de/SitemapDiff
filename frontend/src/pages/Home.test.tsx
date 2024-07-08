@@ -53,7 +53,7 @@ describe('Home Component', () => {
         expect(siteList).toBeInTheDocument();
     });
 
-    test('calls handleCrawlAllSites when Crawl All button is clicked', async () => {
+    test('calls handleCrawl when Crawl All button is clicked', async () => {
         mockedAxios.get.mockResolvedValue({data: []});
 
         render(<Home sites={sites} refreshSites={refreshSitesMock} user={user}/>);

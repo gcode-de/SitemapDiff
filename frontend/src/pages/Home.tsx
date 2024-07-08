@@ -93,9 +93,10 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
 
     const handleCrawlAllSites = async () => {
         sites.forEach((site: Site) => {
-            if (isCrawling.some(s => s !== site.id)) {
-                handleCrawlSite(site.id)
+            if (isCrawling.some(s => s === site.id)) {
+                return;
             }
+            handleCrawlSite(site.id)
         })
     };
 
