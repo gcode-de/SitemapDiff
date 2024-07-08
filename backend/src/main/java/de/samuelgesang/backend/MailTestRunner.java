@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component // Enable this to send test mail at app start
+//@Component // Enable this to send test mail at app start
 public class MailTestRunner implements CommandLineRunner {
 
     private static final Logger logger = LoggerFactory.getLogger(MailTestRunner.class);

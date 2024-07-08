@@ -12,8 +12,8 @@ type SiteListProps = {
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
     handleCrawlSite: (siteId: string) => void;
     isCrawling: string[];
-    isAddSite: boolean; // Add a new prop to determine if the SiteForm should be displayed
-    editSiteId: string | null; // Add a prop to hold the id of the site being edited
+    isAddSite: boolean;
+    editSiteId: string | null;
     handleAbortForm: () => void;
     refreshSites: () => void;
     handleAddSite: (site: Site | undefined | null) => void;
@@ -96,7 +96,8 @@ const SiteList: React.FC<SiteListProps> = ({
                         justifyContent: 'space-between',
                         padding: 2
                     }}>
-                        <Button variant="outlined" onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
+                        <Button variant="outlined" disabled={editSiteId !== null || isAddSite}
+                                onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
                         {isCrawling.some(e => e === "all" || e === site.id) && <LoadingSpinner/>}
                         <Button variant="outlined" disabled={isCrawling.some(e => e === "all" || e === site.id)}
                                 onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>

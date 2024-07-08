@@ -63,18 +63,18 @@ const SiteForm: React.FC<SiteFormProps> = ({
         }
     }, [formData]);
 
-    const isURLValid = (url: string | undefined): boolean => {
-        if (!url) return false;
-        const pattern = /^(https?:\/\/)/;
-        return pattern.test(url);
-    };
+    // const isURLValid = (url: string | undefined): boolean => {
+    //     if (!url) return false;
+    //     const pattern = /^(https?:\/\/)/;
+    //     return pattern.test(url);
+    // };
 
     const findSitemapByBaseURL = async (url: string | undefined): Promise<string> => {
         if (!url) throw new Error("No URL provided.");
-        if (!isURLValid(url)) {
-            setError("URL must start with http:// or https://");
-            return "";
-        }
+        // if (!isURLValid(url)) {
+        //     setError("URL must start with http:// or https://");
+        //     return "";
+        // }
 
         try {
             const sitemap = await fetchSitemap(url);
@@ -126,11 +126,13 @@ const SiteForm: React.FC<SiteFormProps> = ({
                     required={true}
                     value={formData?.baseURL || ''}
                     onChange={handleChange}
-                    helperText={formData?.baseURL && !isURLValid(formData.baseURL) ? "URL must start with http:// or https://" : ""}
-                    error={!!(formData?.baseURL && !isURLValid(formData.baseURL))}
+                    // helperText={formData?.baseURL && !isURLValid(formData.baseURL) ? "URL must start with http:// or https://" : ""}
+                    // error={!!(formData?.baseURL && !isURLValid(formData.baseURL))}
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
-                        disabled={!formData?.baseURL || !isURLValid(formData.baseURL)}
+                        disabled={!formData?.baseURL
+                            // || !isURLValid(formData.baseURL)
+                        }
                         onClick={() => findSitemapByBaseURL(formData?.baseURL)}>Find Sitemap</Button>
                 <TextField
                     label="Enter Sitemap-URL manually"

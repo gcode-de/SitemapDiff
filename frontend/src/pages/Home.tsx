@@ -140,7 +140,8 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
                     userMail={user?.email}
                 />
             </Box>
-            <Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={isCrawling}/>
+            <Footer setIsAddSite={setIsAddSite} editSiteId={editSiteId} handleCrawlAllSites={handleCrawlAllSites}
+                    isCrawling={isCrawling}/>
         </>
     );
 };
