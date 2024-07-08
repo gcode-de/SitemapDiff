@@ -1,17 +1,17 @@
 # SitemapDiff
 
-SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeitsportal24 GmbH entwickelt wurde. Ziel der Anwendung ist es, dem Team von Hochzeitsportal24 ein effizientes und benutzerfreundliches Tool zur Verfügung zu stellen, um Änderungen auf verschiedenen Webseiten zu überwachen und zu verwalten. Raffael Schulz, der Inhaber von Hochzeitsportal24, hat die Anforderungen und Ideen für die App formuliert, um sie optimal in den Arbeitsalltag seines Teams zu integrieren.
+SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeitsportal24 GmbH entwickelt wurde. Ziel der Anwendung ist es, dem Team von Hochzeitsportal24 ein effizientes und benutzerfreundliches Tool zur Verfügung zu stellen, um Änderungen auf verschiedenen Webseiten zu überwachen. Raffael Schulz, der Inhaber von Hochzeitsportal24, hat die Anforderungen und Ideen für die App formuliert, um sie optimal in den Arbeitsalltag seines Teams zu integrieren.
 
 ## Features
 
-- **Google Login**: Einfache und sichere Authentifizierung mittels Google-Login.
 - **Webseiten-Tracking**: Nutzer können URLs von Webseiten hinzufügen, die überwacht werden sollen.
-- **Automatische Sitemap-Erkennung**: Basierend auf den hinzugefügten URLs werden automatisch die entsprechenden `sitemap.xml`-Dateien erkannt und verarbeitet.
 - **Datenbank-Speicherung**: Inhalte der Sitemaps werden bei jedem Crawl in einer MongoDB-Datenbank gespeichert.
 - **Manuelle und automatische Crawls**: Crawls können manuell gestartet oder per Cronjob automatisch durchgeführt werden.
 - **Änderungserkennung**: Unterschiede zwischen zwei Crawls, wie hinzugefügte oder entfernte URLs, werden übersichtlich angezeigt.
-- **Interaktive URLs**: Geänderte URLs können per Klick besucht, ins Clipboard kopiert, als CSV-Datei herunter geladen oder (in zukünftigen Versionen) per Email verschickt werden.
+- **Interaktive URLs**: Geänderte URLs können per Klick besucht, ins Clipboard kopiert, als CSV-Datei herunter geladen oder per Email verschickt werden.
 - **Favicons**: Favicon-Dateien der Webseiten werden gesucht und im Frontend angezeigt um die Bedienung schneller und intuitiver zu machen.
+- **Automatische Sitemap-Erkennung**: Basierend auf den hinzugefügten URLs werden automatisch die entsprechenden `sitemap.xml`-Dateien erkannt und verarbeitet.
+- **Google Login**: Einfache und sichere Authentifizierung mittels Google-Login.
 
 ## Verwendete Technologien
 
@@ -23,7 +23,9 @@ SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeits
   - **Spring Boot**: Für ein robustes und skalierbares Backend.
   - **Spring Security**: Zur Implementierung des Google-Logins und zur Sicherstellung einer sicheren Authentifizierung.
   - **Spring Session**: Für die Verwaltung der Benutzersitzungen.
-  - **MongoDB**: Als NoSQL-Datenbank zur Speicherung der Sitemap-Daten und Benutzerinformationen.
+  - **Spring Mail**: Nutzer können Crwaling-Ergebnisse per Mail erhalten.
+  - **Spring Schedule**: Ermöglicht automatisches, regelmäßiges Crawlen von Seiten.
+  - **MongoDB**: NoSQL-Datenbank zur Speicherung der Sitemap-Daten und Benutzer-Sessions.
 
 - **Frontend**:
   - **React**: Für eine dynamische und reaktionsschnelle Benutzeroberfläche.
@@ -31,9 +33,9 @@ SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeits
   - **Material-UI**: Für ein modernes und ansprechendes Design der Benutzeroberfläche.
 
 - **Weitere Tools**:
-  - **Axios**: Für die Kommunikation zwischen Frontend und Backend.
   - **Docker**: Zur Containerisierung der Anwendung für eine einfache Bereitstellung und Skalierung.
   - **GitHub Actions**: Für Continuous Integration und Continuous Deployment (CI/CD).
+  - **Axios**: Für die Kommunikation zwischen Frontend und Backend.
 
 ## Praktischer Nutzen
 
