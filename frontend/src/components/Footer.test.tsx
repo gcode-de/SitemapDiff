@@ -11,7 +11,8 @@ describe('Footer Component', () => {
     });
 
     test('renders Footer with buttons', () => {
-        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}/>);
+        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}
+                       editSiteId={null}/>);
 
         const addSiteButton = screen.getByText('Add Site');
         const crawlAllButton = screen.getByText('Crawl All');
@@ -21,7 +22,8 @@ describe('Footer Component', () => {
     });
 
     test('calls setIsAddSite when Add Site button is clicked', () => {
-        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}/>);
+        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}
+                       editSiteId={null}/>);
 
         const addSiteButton = screen.getByText('Add Site');
         fireEvent.click(addSiteButton);
@@ -31,7 +33,8 @@ describe('Footer Component', () => {
     });
 
     test('calls handleCrawlAllSites when Crawl All button is clicked', () => {
-        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}/>);
+        render(<Footer setIsAddSite={setIsAddSite} handleCrawlAllSites={handleCrawlAllSites} isCrawling={[]}
+                       editSiteId={null}/>);
 
         const crawlAllButton = screen.getByText('Crawl All');
         fireEvent.click(crawlAllButton);

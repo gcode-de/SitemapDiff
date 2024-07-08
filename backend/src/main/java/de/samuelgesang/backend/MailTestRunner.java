@@ -6,7 +6,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.mail.MailException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
+//import org.springframework.stereotype.Component;
 
 //@Component // Enable this to send test mail at app start
 public class MailTestRunner implements CommandLineRunner {

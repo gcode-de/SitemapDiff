@@ -10,7 +10,6 @@ import {Crawl} from "../types/Crawl.tsx";
 
 type SiteItemProps = {
     crawl: Crawl;
-    baseURL: string;
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
     refreshSites: () => void;
 };

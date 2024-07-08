@@ -124,27 +124,6 @@ public class SiteService {
         return siteRepository.findByCrawlSchedule(schedule);
     }
 
-//    private String extractFavicon(String baseURL) {
-//        try {
-//            Document doc = Jsoup.connect(baseURL).get();
-//            Element iconLink = doc.select("link[rel~=(?i)^(shortcut icon|icon|apple-touch-icon|alternate icon|mask-icon|fluid-icon|manifest)]").first();
-//
-//            if (iconLink != null) {
-//                String iconUrl = iconLink.attr("href");
-//                if (!iconUrl.startsWith("http")) {
-//                    return URI.create(baseURL).resolve(iconUrl).toString();
-//                } else {
-//                    return iconUrl;
-//                }
-//            } else {
-//                return URI.create(baseURL).resolve("/favicon.ico").toString();
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//    }
-
     private String extractFavicon(String baseURL) {
         String[] prefixes = {"http://", "https://"};
         String[] domains = {"", "www."};
