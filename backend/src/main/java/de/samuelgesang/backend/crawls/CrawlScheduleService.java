@@ -1,10 +1,9 @@
-package de.samuelgesang.backend.sites;
+package de.samuelgesang.backend.crawls;
 
-import de.samuelgesang.backend.crawls.Crawl;
-import de.samuelgesang.backend.crawls.CrawlDiffItem;
-import de.samuelgesang.backend.crawls.CrawlRepository;
 import de.samuelgesang.backend.exceptions.SitemapException;
 import de.samuelgesang.backend.sitemaps.SitemapService;
+import de.samuelgesang.backend.sites.Site;
+import de.samuelgesang.backend.sites.SiteService;
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
 import org.slf4j.Logger;
@@ -22,29 +21,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class SiteScheduledService {
+public class CrawlScheduleService {
 
-    private static final Logger logger = LoggerFactory.getLogger(SiteScheduledService.class);
+    private static final Logger logger = LoggerFactory.getLogger(CrawlScheduleService.class);
 
     private final SiteService siteService;
     private final JavaMailSender mailSender;
     private final SitemapService sitemapService;
     private final CrawlRepository crawlRepository;
 
-    public SiteScheduledService(SiteService siteService, JavaMailSender mailSender, SitemapService sitemapService, CrawlRepository crawlRepository) {
+    public CrawlScheduleService(SiteService siteService, JavaMailSender mailSender, SitemapService sitemapService, CrawlRepository crawlRepository) {
         this.siteService = siteService;
         this.mailSender = mailSender;
         this.sitemapService = sitemapService;
         this.crawlRepository = crawlRepository;
     }
 
-    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
-    public void testScheduledCrawls() {
-        List<Site> sites = siteService.getAllSitesWithSchedule("daily");
-        for (Site site : sites) {
-            performCrawl(site);
-        }
-    }
+//    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
+//    public void testScheduledCrawls() {
+//        List<Site> sites = siteService.getAllSitesWithSchedule("daily");
+//        for (Site site : sites) {
+//            performCrawl(site);
+//        }
+//    }
 
     @Scheduled(cron = "0 0 0 * * *") // Runs every day at midnight
     public void scheduleDailyCrawls() {
