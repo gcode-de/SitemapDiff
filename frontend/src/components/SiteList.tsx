@@ -19,7 +19,7 @@ type SiteListProps = {
     handleAddSite: (site: Site | undefined | null) => void;
     handleEditSite: (site: Site | undefined | null) => void;
     handleDeleteSite: (id: string) => void;
-    userMail: String | undefined;
+    userMail: string | undefined;
 }
 
 const SiteList: React.FC<SiteListProps> = ({
