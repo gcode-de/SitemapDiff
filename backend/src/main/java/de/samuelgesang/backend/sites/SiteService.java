@@ -125,7 +125,7 @@ public class SiteService {
     }
 
     private String extractFavicon(String baseURL) {
-        String[] prefixes = {"http://", "https://"};
+        String[] prefixes = {"http://", "https://", ""};
         String[] domains = {"", "www."};
 
         for (String prefix : prefixes) {
