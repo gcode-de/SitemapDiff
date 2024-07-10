@@ -100,7 +100,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
         })
     };
 
-    if (!sites || !sites.length) {
+    if (!sites) {
         return <Box id="scrollContainer" sx={{
             display: 'flex',
             flexDirection: 'row',
@@ -118,6 +118,9 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
 
     return (
         <>
+            {!sites.length &&
+                <Typography variant={'h4'} sx={{marginTop: 2, textAlign: "center"}}>Please add sites to
+                    crawl!</Typography>}
             <Box sx={{
                 display: 'flex',
                 flexDirection: 'row',
