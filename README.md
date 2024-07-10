@@ -21,7 +21,7 @@ SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeits
  
 - **Backend**:
   - **Spring Boot**: Für ein robustes und skalierbares Backend.
-  - **Spring Security**: Zur Implementierung des Google-Logins und zur Sicherstellung einer sicheren Authentifizierung.
+  - **Spring Security / OAuth2**: Zur Implementierung des Google-Logins und zur Sicherstellung einer sicheren Authentifizierung.
   - **Spring Session**: Für die Verwaltung der Benutzersitzungen.
   - **Spring Mail**: Nutzer können Crwaling-Ergebnisse per Mail erhalten.
   - **Spring Schedule**: Ermöglicht automatisches, regelmäßiges Crawlen von Seiten.
@@ -35,6 +35,7 @@ SitemapDiff ist eine fortschrittliche Webanwendung, die im Auftrag der Hochzeits
 - **Weitere Tools**:
   - **Docker**: Zur Containerisierung der Anwendung für eine einfache Bereitstellung und Skalierung.
   - **GitHub Actions**: Für Continuous Integration und Continuous Deployment (CI/CD).
+  - **JUnit, Jest, SOnar Cloud**: Testing und Clean Code.
   - **Axios**: Für die Kommunikation zwischen Frontend und Backend.
 
 ## Praktischer Nutzen
