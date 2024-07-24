@@ -27,14 +27,14 @@ public class CrawlScheduleService {
 
     private final SiteService siteService;
     private final JavaMailSender mailSender;
-    private final SitemapService sitemapService;
     private final CrawlRepository crawlRepository;
+    private final CrawlService crawlService;
 
-    public CrawlScheduleService(SiteService siteService, JavaMailSender mailSender, SitemapService sitemapService, CrawlRepository crawlRepository) {
+    public CrawlScheduleService(SiteService siteService, JavaMailSender mailSender, CrawlRepository crawlRepository, CrawlService crawlService1) {
         this.siteService = siteService;
         this.mailSender = mailSender;
-        this.sitemapService = sitemapService;
         this.crawlRepository = crawlRepository;
+        this.crawlService = crawlService1;
     }
 
 //    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
@@ -71,7 +71,7 @@ public class CrawlScheduleService {
 
     private void performCrawl(Site site) {
         try {
-            Crawl crawl = sitemapService.crawlSite(site);
+            Crawl crawl = crawlService.crawlSite(site);
             crawlRepository.save(crawl);
             updateSiteWithNewCrawl(site, crawl);
             sendCrawlResultsEmail(site, crawl);

@@ -50,7 +50,7 @@ public class CrawlController {
                 throw new BadRequestException("Site does not have a sitemap URL.");
             }
 
-            Crawl crawl = sitemapService.crawlSite(site);
+            Crawl crawl = crawlService.crawlSite(site);
             crawlRepository.save(crawl);
             site.getCrawlIds().add(crawl.getId());
             siteService.updateSite(site.getId(), site);
