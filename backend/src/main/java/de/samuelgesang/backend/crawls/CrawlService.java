@@ -46,35 +46,56 @@ public class CrawlService {
             fetchUrlsFromSitemap(sitemapUrl, urls);
             logger.info("Total URLs fetched: {}", urls.size());
 
-            // Split URLs into chunks and save them
-            List<String> urlChunkIds = saveUrlChunks(urls, crawl.getId());
-            crawl.setUrlChunkIds(urlChunkIds);
-
-            // Set prevCrawlId if there was a previous crawl
             List<String> crawlIds = site.getCrawlIds();
             if (crawlIds == null) {
                 crawlIds = new ArrayList<>();
             }
-            if (!crawlIds.isEmpty()) {
-                String prevCrawlId = crawlIds.getLast();
-                crawl.setPrevCrawlId(prevCrawlId);
 
-                // Fetch previous crawl
-                Crawl prevCrawl = crawlRepository.findById(prevCrawlId).orElse(null);
-                if (prevCrawl != null) {
-                    List<String> prevUrls = loadUrlsFromChunks(prevCrawl.getUrlChunkIds());
-                    List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, prevUrls);
-                    logger.info("Site: {} - diffToPrevCrawl: {}", site.getName(), diffToPrevCrawl);
-                    crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+            if (crawlIds.isEmpty()) {
+                // First crawl, save URLs in chunks
+                List<String> urlChunkIds = saveUrlChunks(urls, crawl.getId());
+                crawl.setUrlChunkIds(urlChunkIds);
+                crawl.setPrevCrawlId(null);
+                crawl.setDiffToPrevCrawl(Collections.emptyList());
+            } else {
+                // Not the first crawl, compare with the previous crawls
+                String firstCrawlId = crawlIds.get(0);
+                Crawl firstCrawl = crawlRepository.findById(firstCrawlId)
+                        .orElseThrow(() -> new ResourceNotFoundException("First crawl not found: " + firstCrawlId));
+                List<String> reconstructedPrevUrls = loadUrlsFromChunks(firstCrawl.getUrlChunkIds());
+
+                // Apply all previous diffs to reconstruct the previous state
+                for (String id : crawlIds.subList(1, crawlIds.size())) {
+                    Crawl previousCrawl = crawlRepository.findById(id).orElse(null);
+                    if (previousCrawl != null && previousCrawl.getDiffToPrevCrawl() != null) {
+                        applyDiff(reconstructedPrevUrls, previousCrawl.getDiffToPrevCrawl());
+                    }
                 }
+
+                List<CrawlDiffItem> diffToPrevCrawl = calculateDiff(urls, reconstructedPrevUrls);
+                logger.info("Site: {} - diffToPrevCrawl: {}", site.getName(), diffToPrevCrawl);
+                crawl.setDiffToPrevCrawl(diffToPrevCrawl);
+
+                // Do not save URLs in chunks for non-first crawls
+                crawl.setUrlChunkIds(Collections.emptyList()); // Ensure urlChunkIds is initialized
+                crawl.setPrevCrawlId(crawlIds.get(crawlIds.size() - 1));
             }
 
             // Set finishedAt with the current timestamp in Zulu format
             crawl.setFinishedAt(Instant.now().toString());
 
+            crawlRepository.save(crawl);
+            logger.info("Crawl saved with ID: {}", crawl.getId());
+
+            crawlIds.add(crawl.getId());
+            site.setCrawlIds(crawlIds);
+            siteRepository.save(site);
+            logger.info("Site updated with new crawl ID: {}", crawl.getId());
+
             return crawl;
         } catch (Exception e) {
             String errorMessage = "Error crawling site: " + site.getName();
+            logger.error(errorMessage, e);
             throw new SitemapException(errorMessage, e);
         }
     }
@@ -93,12 +114,25 @@ public class CrawlService {
     }
 
     public List<String> loadUrlsFromChunks(List<String> urlChunkIds) {
+        if (urlChunkIds == null) {
+            return new ArrayList<>();
+        }
         List<String> urls = new ArrayList<>();
         for (String chunkId : urlChunkIds) {
             Optional<UrlChunk> chunk = urlChunkRepository.findById(chunkId);
             chunk.ifPresent(urlChunk -> urls.addAll(urlChunk.getUrls()));
         }
         return urls;
+    }
+
+    private void applyDiff(List<String> urls, List<CrawlDiffItem> diffToPrevCrawl) {
+        for (CrawlDiffItem item : diffToPrevCrawl) {
+            if ("add".equals(item.getAction())) {
+                urls.add(item.getUrl());
+            } else if ("remove".equals(item.getAction())) {
+                urls.remove(item.getUrl());
+            }
+        }
     }
 
     public List<CrawlDiffItem> calculateDiff(List<String> currentUrls, List<String> previousUrls) {
@@ -182,12 +216,69 @@ public class CrawlService {
         }
     }
 
-    public void deleteCrawlsBySiteId(String siteId) {
-        List<Crawl> crawls = crawlRepository.findBySiteId(siteId);
-        for (Crawl crawl : crawls) {
-            urlChunkRepository.deleteByCrawlId(crawl.getId());
-            crawlRepository.delete(crawl);
+    public void deleteCrawl(String crawlId, String userId) {
+        Optional<Crawl> optionalCrawl = crawlRepository.findById(crawlId);
+        if (optionalCrawl.isEmpty()) {
+            throw new ResourceNotFoundException("Crawl not found: " + crawlId);
         }
+
+        Crawl crawl = optionalCrawl.get();
+        Site site = siteRepository.findById(crawl.getSiteId())
+                .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + crawl.getSiteId()));
+
+        if (!site.getUserId().equals(userId)) {
+            throw new UnauthorizedAccessException("Unauthorized to delete crawl for site: " + crawl.getSiteId());
+        }
+
+        // Remove URL chunks
+        urlChunkRepository.deleteAllByCrawlId(crawlId);
+
+        // Update the crawl list of the site
+        List<String> crawlIds = site.getCrawlIds();
+        int index = crawlIds.indexOf(crawlId);
+        crawlIds.remove(crawlId);
+
+        if (index == 0 && !crawlIds.isEmpty()) {
+            String nextCrawlId = crawlIds.get(0);
+            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
+
+            nextCrawl.setPrevCrawlId(null);
+
+            List<String> urls = loadUrlsFromChunks(crawl.getUrlChunkIds());
+            applyDiff(urls, nextCrawl.getDiffToPrevCrawl());
+
+            List<String> urlChunkIds = saveUrlChunks(urls, nextCrawl.getId());
+            nextCrawl.setUrlChunkIds(urlChunkIds);
+            nextCrawl.setDiffToPrevCrawl(new ArrayList<>());
+
+            crawlRepository.save(nextCrawl);
+        } else if (index > 0 && index < crawlIds.size()) {
+            String prevCrawlId = crawlIds.get(index - 1);
+            String nextCrawlId = crawlIds.get(index);
+
+            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
+            nextCrawl.setPrevCrawlId(prevCrawlId);
+
+            List<String> prevUrls = loadUrlsFromChunks(crawlRepository.findById(prevCrawlId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Previous crawl not found: " + prevCrawlId))
+                    .getUrlChunkIds());
+
+            applyDiff(prevUrls, crawl.getDiffToPrevCrawl());
+
+            List<String> nextUrls = loadUrlsFromChunks(nextCrawl.getUrlChunkIds());
+            List<CrawlDiffItem> combinedDiff = calculateDiff(nextUrls, prevUrls);
+            combinedDiff.addAll(nextCrawl.getDiffToPrevCrawl());
+            nextCrawl.setDiffToPrevCrawl(combinedDiff);
+
+            crawlRepository.save(nextCrawl);
+        }
+
+        site.setCrawlIds(crawlIds);
+        siteRepository.save(site);
+
+        crawlRepository.deleteById(crawlId);
     }
 
     public Crawl updateUrlCheckedStatus(String crawlId, UpdateUrlStatusDTO updateUrlStatusDTO) {
@@ -217,61 +308,12 @@ public class CrawlService {
         }
     }
 
-    public void deleteCrawl(String crawlId, String userId) {
-        Optional<Crawl> optionalCrawl = crawlRepository.findById(crawlId);
-        if (optionalCrawl.isEmpty()) {
-            throw new ResourceNotFoundException("Crawl not found: " + crawlId);
+    public void deleteCrawlsBySiteId(String siteId) {
+        List<Crawl> crawls = crawlRepository.findBySiteId(siteId);
+        for (Crawl crawl : crawls) {
+            urlChunkRepository.deleteByCrawlId(crawl.getId());
+            crawlRepository.delete(crawl);
         }
-
-        Crawl crawl = optionalCrawl.get();
-        Site site = siteRepository.findById(crawl.getSiteId())
-                .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + crawl.getSiteId()));
-
-        if (!site.getUserId().equals(userId)) {
-            throw new UnauthorizedAccessException("Unauthorized to delete crawl for site: " + crawl.getSiteId());
-        }
-
-        // Remove URL chunks
-        urlChunkRepository.deleteAllByCrawlId(crawlId);
-
-        // Update the crawl list of the site
-        List<String> crawlIds = site.getCrawlIds();
-        int index = crawlIds.indexOf(crawlId);
-        crawlIds.remove(crawlId);
-
-        if (index > 0 && index < crawlIds.size()) {
-            String prevCrawlId = crawlIds.get(index - 1);
-            String nextCrawlId = crawlIds.get(index);
-
-            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
-            nextCrawl.setPrevCrawlId(prevCrawlId);
-
-            // Recalculate diffToPrevCrawl
-            List<String> prevUrls = loadUrlsFromChunks(crawlRepository.findById(prevCrawlId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Previous crawl not found: " + prevCrawlId))
-                    .getUrlChunkIds());
-
-            List<String> nextUrls = loadUrlsFromChunks(nextCrawl.getUrlChunkIds());
-            nextCrawl.setDiffToPrevCrawl(calculateDiff(nextUrls, prevUrls));
-
-            crawlRepository.save(nextCrawl);
-        }
-
-        if (index == 0 && !crawlIds.isEmpty()) {
-            String nextCrawlId = crawlIds.getFirst();
-
-            Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
-            nextCrawl.setPrevCrawlId(null);
-            nextCrawl.setDiffToPrevCrawl(new ArrayList<>());
-
-            crawlRepository.save(nextCrawl);
-        }
-
-        site.setCrawlIds(crawlIds);
-        siteRepository.save(site);
-
-        crawlRepository.deleteById(crawlId);
     }
+
 }

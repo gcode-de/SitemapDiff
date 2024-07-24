@@ -51,9 +51,9 @@ public class CrawlController {
             }
 
             Crawl crawl = crawlService.crawlSite(site);
-            crawlRepository.save(crawl);
-            site.getCrawlIds().add(crawl.getId());
-            siteService.updateSite(site.getId(), site);
+//            crawlRepository.save(crawl);
+//            site.getCrawlIds().add(crawl.getId());
+//            siteService.updateSite(site.getId(), site);
 
             return ResponseEntity.ok("Site crawled successfully.");
         } catch (ResourceNotFoundException | UnauthorizedAccessException | BadRequestException e) {
