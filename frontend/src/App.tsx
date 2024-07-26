@@ -12,7 +12,7 @@ import {Site} from "./types/Site.tsx";
 const App: React.FC = () => {
 
     const [user, setUser] = useState<User | null | undefined>(undefined)
-    const [sites, setSites] = useState<Site[]>([])
+    const [sites, setSites] = useState<Site[] | null>(null)
 
     const loadUser = () => {
         axios.get('/api/auth/me')
