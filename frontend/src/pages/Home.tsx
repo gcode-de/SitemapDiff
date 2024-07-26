@@ -10,7 +10,7 @@ import axios from 'axios';
 import {User} from "../types/User.tsx";
 
 type HomeProps = {
-    sites: Site[],
+    sites: Site[] | null,
     refreshSites: () => void,
     user: User | null | undefined
 }
@@ -92,7 +92,7 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
     };
 
     const handleCrawlAllSites = async () => {
-        sites.forEach((site: Site) => {
+        sites?.forEach((site: Site) => {
             if (isCrawling.some(s => s === site.id)) {
                 return;
             }

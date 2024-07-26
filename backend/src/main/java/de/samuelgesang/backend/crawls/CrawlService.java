@@ -217,28 +217,32 @@ public class CrawlService {
     }
 
     public void deleteCrawl(String crawlId, String userId) {
+        // 1. Find the Crawl to Delete
         Optional<Crawl> optionalCrawl = crawlRepository.findById(crawlId);
         if (optionalCrawl.isEmpty()) {
             throw new ResourceNotFoundException("Crawl not found: " + crawlId);
         }
 
         Crawl crawl = optionalCrawl.get();
+        // 2. Find the Associated Site
         Site site = siteRepository.findById(crawl.getSiteId())
                 .orElseThrow(() -> new ResourceNotFoundException("Site not found: " + crawl.getSiteId()));
 
+        // 3. Check Authorization
         if (!site.getUserId().equals(userId)) {
             throw new UnauthorizedAccessException("Unauthorized to delete crawl for site: " + crawl.getSiteId());
         }
 
-        // Remove URL chunks
+        // 4. Remove URL Chunks
         urlChunkRepository.deleteAllByCrawlId(crawlId);
 
-        // Update the crawl list of the site
+        // 5. Update the Crawl List of the Site
         List<String> crawlIds = site.getCrawlIds();
         int index = crawlIds.indexOf(crawlId);
         crawlIds.remove(crawlId);
 
         if (index == 0 && !crawlIds.isEmpty()) {
+            // 6. Handle Deletion of the First Crawl
             String nextCrawlId = crawlIds.get(0);
             Crawl nextCrawl = crawlRepository.findById(nextCrawlId)
                     .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
@@ -254,6 +258,7 @@ public class CrawlService {
 
             crawlRepository.save(nextCrawl);
         } else if (index > 0 && index < crawlIds.size()) {
+            // 7. Handle Deletion of a Middle Crawl
             String prevCrawlId = crawlIds.get(index - 1);
             String nextCrawlId = crawlIds.get(index);
 
@@ -261,25 +266,38 @@ public class CrawlService {
                     .orElseThrow(() -> new ResourceNotFoundException("Next crawl not found: " + nextCrawlId));
             nextCrawl.setPrevCrawlId(prevCrawlId);
 
-            List<String> prevUrls = loadUrlsFromChunks(crawlRepository.findById(prevCrawlId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Previous crawl not found: " + prevCrawlId))
-                    .getUrlChunkIds());
-
-            applyDiff(prevUrls, crawl.getDiffToPrevCrawl());
-
-            List<String> nextUrls = loadUrlsFromChunks(nextCrawl.getUrlChunkIds());
-            List<CrawlDiffItem> combinedDiff = calculateDiff(nextUrls, prevUrls);
-            combinedDiff.addAll(nextCrawl.getDiffToPrevCrawl());
+            // Merge diffs while removing contradictory entries
+            Map<String, CrawlDiffItem> diffMap = new HashMap<>();
+            for (CrawlDiffItem item : crawl.getDiffToPrevCrawl()) {
+                diffMap.put(item.getUrl(), item);
+            }
+            for (CrawlDiffItem item : nextCrawl.getDiffToPrevCrawl()) {
+                if (diffMap.containsKey(item.getUrl())) {
+                    CrawlDiffItem existingItem = diffMap.get(item.getUrl());
+                    if (!existingItem.getAction().equals(item.getAction())) {
+                        diffMap.remove(item.getUrl()); // Remove contradictory entries
+                    } else {
+                        // Combine checked status
+                        existingItem.setChecked(existingItem.isChecked() || item.isChecked());
+                    }
+                } else {
+                    diffMap.put(item.getUrl(), item);
+                }
+            }
+            List<CrawlDiffItem> combinedDiff = new ArrayList<>(diffMap.values());
             nextCrawl.setDiffToPrevCrawl(combinedDiff);
 
             crawlRepository.save(nextCrawl);
         }
 
+        // 8. Update the Site's Crawl IDs
         site.setCrawlIds(crawlIds);
         siteRepository.save(site);
 
+        // 9. Delete the Crawl
         crawlRepository.deleteById(crawlId);
     }
+
 
     public Crawl updateUrlCheckedStatus(String crawlId, UpdateUrlStatusDTO updateUrlStatusDTO) {
         log.info("Updating URL checked status for crawlId: {} with DTO: {}", crawlId, updateUrlStatusDTO);
