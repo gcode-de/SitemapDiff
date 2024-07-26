@@ -45,7 +45,7 @@ public class CrawlScheduleService {
         this.crawlService = crawlService1;
     }
 
-    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
+    //    @Scheduled(cron = "0 */5 * * * *") // Runs every 5 minutes for testing
     @Scheduled(cron = "0 0 0 * * *") // Runs every day at midnight
     public void scheduleDailyCrawls() {
         List<Site> sites = siteService.getAllSitesWithSchedule("daily");

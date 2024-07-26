@@ -1,12 +1,8 @@
 package de.samuelgesang.backend.sitemaps;
 
-import de.samuelgesang.backend.crawls.Crawl;
-import de.samuelgesang.backend.crawls.CrawlDiffItem;
 import de.samuelgesang.backend.crawls.CrawlRepository;
 import de.samuelgesang.backend.exceptions.SitemapException;
-import de.samuelgesang.backend.url_chunk.UrlChunk;
 import de.samuelgesang.backend.url_chunk.UrlChunkRepository;
-import de.samuelgesang.backend.sites.Site;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -16,10 +12,7 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.time.Instant;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 
 @Service
@@ -27,12 +20,7 @@ public class SitemapService {
 
     private static final Logger logger = LoggerFactory.getLogger(SitemapService.class);
 
-    private final CrawlRepository crawlRepository;
-    private final UrlChunkRepository urlChunkRepository;
-
     public SitemapService(CrawlRepository crawlRepository, UrlChunkRepository urlChunkRepository) {
-        this.crawlRepository = crawlRepository;
-        this.urlChunkRepository = urlChunkRepository;
     }
 
     public String findSitemapURL(String baseURL) throws SitemapException {
