@@ -53,6 +53,15 @@ describe('Home Component', () => {
         expect(siteList).toBeInTheDocument();
     });
 
+    test('renders anonymous demo data as read-only', () => {
+        render(<Home sites={sites} refreshSites={refreshSitesMock} user={null}/>);
+
+        expect(screen.getByText(/sample data is read-only/i)).toBeInTheDocument();
+        expect(screen.getByRole('button', {name: /add site/i})).toBeDisabled();
+        expect(screen.getByRole('button', {name: /crawl all/i})).toBeDisabled();
+        expect(screen.getAllByRole('button', {name: /crawl now/i})[0]).toBeDisabled();
+    });
+
     test('calls handleCrawl when Crawl All button is clicked', async () => {
         mockedAxios.get.mockResolvedValue({data: []});
 

@@ -20,6 +20,7 @@ type SiteListProps = {
     handleEditSite: (site: Site | undefined | null) => void;
     handleDeleteSite: (id: string) => void;
     userMail: string | undefined;
+    readOnly?: boolean;
 }
 
 const SiteList: React.FC<SiteListProps> = ({
@@ -36,6 +37,7 @@ const SiteList: React.FC<SiteListProps> = ({
                                                handleEditSite,
                                                handleDeleteSite,
                                                userMail,
+                                               readOnly = false,
                                            }) => {
     return (
         <Box id="scrollContainer" sx={{
@@ -89,17 +91,19 @@ const SiteList: React.FC<SiteListProps> = ({
                             </Typography>
                         </Tooltip>
                         <Divider/>
-                        <SiteItem site={site} handleCheckUrl={handleCheckUrl} refreshSites={refreshSites}/>
+                        <SiteItem site={site} handleCheckUrl={handleCheckUrl} refreshSites={refreshSites}
+                                  readOnly={readOnly}/>
                     </CardContent>
                     <Box sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
                         padding: 2
                     }}>
-                        <Button variant="outlined" disabled={editSiteId !== null || isAddSite}
+                        <Button variant="outlined" disabled={readOnly || editSiteId !== null || isAddSite}
                                 onClick={() => setEditSiteId(site.id)}>Edit Site</Button>
                         {isCrawling.some(e => e === "all" || e === site.id) && <LoadingSpinner/>}
-                        <Button variant="outlined" disabled={isCrawling.some(e => e === "all" || e === site.id)}
+                        <Button variant="outlined"
+                                disabled={readOnly || isCrawling.some(e => e === "all" || e === site.id)}
                                 onClick={() => handleCrawlSite(site.id)}>Crawl Now</Button>
                     </Box>
                 </Card>

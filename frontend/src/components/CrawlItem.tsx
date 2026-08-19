@@ -12,9 +12,10 @@ type SiteItemProps = {
     crawl: Crawl;
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
     refreshSites: () => void;
+    readOnly?: boolean;
 };
 
-const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites}: SiteItemProps) => {
+const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites, readOnly = false}: SiteItemProps) => {
 
     function truncateTextFromStart(text: string, maxLength: number) {
         if (text.length > maxLength) {
@@ -95,6 +96,7 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites
                         <IconButton edge="end" aria-label="mark as done" sx={{padding: '0px', minHeight: '24px'}}>
                             <Checkbox
                                 checked={diff.checked || false}
+                                disabled={readOnly}
                                 onChange={() => handleCheckUrl(crawl.id, diff.url, !diff.checked)}
                                 inputProps={{'aria-label': 'controlled'}}
                                 sx={{padding: '0px', height: '16px', width: '16px'}}
@@ -186,7 +188,8 @@ const CrawlItem: React.FC<SiteItemProps> = ({crawl, handleCheckUrl, refreshSites
                                 lineHeight: '1',
                                 fontSize: '14px'
                             }}>{formatTimestamp(crawl.finishedAt)}</Typography>
-                <Button variant="text" color="inherit" onClick={() => handleDeleteCrawl(crawl.id)}
+                <Button variant="text" color="inherit" disabled={readOnly}
+                        onClick={() => handleDeleteCrawl(crawl.id)}
                         endIcon={<DeleteIcon/>}
                         sx={{textTransform: 'lowercase'}}>
                     delete

@@ -5,9 +5,10 @@ type FooterProps = {
     setIsAddSite: (state: boolean) => void;
     handleCrawlAllSites: () => void;
     editSiteId: string | null;
+    readOnly?: boolean;
 }
 
-const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites, editSiteId}: FooterProps) => {
+const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites, editSiteId, readOnly = false}: FooterProps) => {
     return (
         <AppBar position="fixed" sx={{
             top: 'auto', bottom: 0, bgcolor: 'background.default',
@@ -28,9 +29,9 @@ const Footer: React.FC<FooterProps> = ({setIsAddSite, handleCrawlAllSites, editS
                     justifyContent: 'space-between',
                     width: '100%',
                 }}>
-                    <Button variant="contained" disabled={editSiteId !== null} color="primary"
+                    <Button variant="contained" disabled={readOnly || editSiteId !== null} color="primary"
                             onClick={() => setIsAddSite(true)}>Add Site</Button>
-                    <Button variant="contained" color="primary"
+                    <Button variant="contained" color="primary" disabled={readOnly}
                             onClick={handleCrawlAllSites}>Crawl All</Button>
                 </Box>
             </Toolbar>
