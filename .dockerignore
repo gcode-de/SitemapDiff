@@ -1,0 +1,12 @@
+.git
+.github
+.idea
+**/.DS_Store
+**/node_modules
+**/dist
+**/target
+/SitemapDiff Wireframes.png
+/presentation slide.jpg
+/presentation video.mp4
+/screenshot.png
+/sitemapdiff-demo.png

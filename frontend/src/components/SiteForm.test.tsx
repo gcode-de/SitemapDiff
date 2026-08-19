@@ -1,6 +1,10 @@
 import {fireEvent, render, screen} from '@testing-library/react';
 import SiteForm from './SiteForm';
 import {Site} from '../types/Site';
+import axios from 'axios';
+
+jest.mock('axios');
+const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 const mockHandleEditSite = jest.fn();
 const mockHandleAddSite = jest.fn();
@@ -149,6 +153,33 @@ describe('SiteForm Component', () => {
         fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
 
         expect(screen.getByRole('button', {name: /find sitemap/i})).toBeEnabled();
+    });
+
+    test('displays the backend message when finding a sitemap fails', async () => {
+        mockedAxios.get.mockRejectedValue({
+            isAxiosError: true,
+            response: {data: 'No sitemap found'},
+        });
+        mockedAxios.isAxiosError.mockReturnValue(true);
+
+        render(<SiteForm {...defaultProps} />);
+
+        fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
+        fireEvent.click(screen.getByRole('button', {name: /find sitemap/i}));
+
+        expect(await screen.findByText('No sitemap found')).toBeInTheDocument();
+    });
+
+    test('displays a fallback message for non-Axios sitemap errors', async () => {
+        mockedAxios.get.mockRejectedValue(new Error('Network error'));
+        mockedAxios.isAxiosError.mockReturnValue(false);
+
+        render(<SiteForm {...defaultProps} />);
+
+        fireEvent.change(screen.getAllByLabelText(/URL/i)[0], {target: {value: 'https://newsite.com'}});
+        fireEvent.click(screen.getByRole('button', {name: /find sitemap/i}));
+
+        expect(await screen.findByText('Error finding sitemap')).toBeInTheDocument();
     });
 
 });

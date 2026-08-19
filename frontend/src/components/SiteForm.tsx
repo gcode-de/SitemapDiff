@@ -13,6 +13,7 @@ import {
 } from '@mui/material';
 import {Site} from '../types/Site';
 import {fetchSitemap} from '../api';
+import axios from 'axios';
 
 type SiteFormProps = {
     handleAbortForm: () => void,
@@ -107,8 +108,11 @@ const SiteForm: React.FC<SiteFormProps> = ({
             setFormData({...formData, sitemap} as Site);
             setError(null);
             return sitemap;
-        } catch (error: any) {
-            setError(error.response ? error.response.data : "Error finding sitemap");
+        } catch (error: unknown) {
+            const message = axios.isAxiosError<string>(error)
+                ? error.response?.data
+                : undefined;
+            setError(message ?? "Error finding sitemap");
             throw new Error("Could not retrieve sitemap.");
         }
     };
@@ -155,7 +159,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
                         disabled={!formData?.baseURL}
-                        onClick={() => findSitemapByBaseURL(formData?.baseURL)}>Find Sitemap</Button>
+                        onClick={() => void findSitemapByBaseURL(formData?.baseURL).catch(() => undefined)}>Find Sitemap</Button>
                 <TextField
                     label="Enter Sitemap-URL manually"
                     multiline

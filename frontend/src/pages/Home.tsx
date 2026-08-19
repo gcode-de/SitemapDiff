@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import SiteList from '../components/SiteList';
-import {Box} from '@mui/material';
+import {Alert, Box} from '@mui/material';
 import Footer from "../components/Footer.tsx";
 import {Site} from "../types/Site.tsx";
 import {createSite, deleteSite, updateSite} from '../api';
@@ -118,6 +118,10 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
 
     return (
         <>
+            {!user && sites.length > 0 &&
+                <Alert severity="info" sx={{margin: 2}}>
+                    Demo mode: sample data is read-only. Log in to manage sites and run crawls.
+                </Alert>}
             {!sites.length &&
                 <Typography variant={'h4'} sx={{marginTop: 2, textAlign: "center"}}>Please add sites to
                     crawl!</Typography>}
@@ -144,9 +148,11 @@ const Home: React.FC<HomeProps> = ({sites, refreshSites, user}: HomeProps) => {
                     handleEditSite={handleEditSite}
                     handleDeleteSite={handleDeleteSite}
                     userMail={user?.email}
+                    readOnly={!user}
                 />
             </Box>
-            <Footer setIsAddSite={setIsAddSite} editSiteId={editSiteId} handleCrawlAllSites={handleCrawlAllSites}/>
+            <Footer setIsAddSite={setIsAddSite} editSiteId={editSiteId} handleCrawlAllSites={handleCrawlAllSites}
+                    readOnly={!user}/>
         </>
     );
 };

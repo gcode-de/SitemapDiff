@@ -7,9 +7,10 @@ type SiteItemProps = {
     site: Site;
     handleCheckUrl: (crawlId: string, url: string, newState: boolean) => void;
     refreshSites: () => void;
+    readOnly?: boolean;
 }
 
-const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl, refreshSites}: SiteItemProps) => {
+const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl, refreshSites, readOnly = false}: SiteItemProps) => {
     const listRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
@@ -28,7 +29,7 @@ const SiteItem: React.FC<SiteItemProps> = ({site, handleCheckUrl, refreshSites}:
             }}>
             {site.crawls?.map((crawl) => (
                 <CrawlItem key={crawl.id + crawl.finishedAt} crawl={crawl}
-                           handleCheckUrl={handleCheckUrl} refreshSites={refreshSites}/>
+                           handleCheckUrl={handleCheckUrl} refreshSites={refreshSites} readOnly={readOnly}/>
             ))}
         </List>
     );
