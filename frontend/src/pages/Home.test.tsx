@@ -54,12 +54,27 @@ describe('Home Component', () => {
     });
 
     test('renders anonymous demo data as read-only', () => {
-        render(<Home sites={sites} refreshSites={refreshSitesMock} user={null}/>);
+        const sitesWithCrawl: Site[] = [{
+            ...sites[0],
+            crawls: [{
+                id: 'crawl-1',
+                siteId: sites[0].id,
+                cronId: '',
+                finishedAt: '2026-08-19T10:00:00Z',
+                content: [],
+                prevCrawlId: null,
+                diffToPrevCrawl: [{action: 'add', url: 'https://site1.com/new', checked: false}],
+            }],
+        }];
+
+        render(<Home sites={sitesWithCrawl} refreshSites={refreshSitesMock} user={null}/>);
 
         expect(screen.getByText(/sample data is read-only/i)).toBeInTheDocument();
         expect(screen.getByRole('button', {name: /add site/i})).toBeDisabled();
         expect(screen.getByRole('button', {name: /crawl all/i})).toBeDisabled();
         expect(screen.getAllByRole('button', {name: /crawl now/i})[0]).toBeDisabled();
+        expect(screen.getByRole('checkbox', {name: /controlled/i})).toBeDisabled();
+        expect(screen.getByRole('button', {name: /delete/i})).toBeDisabled();
     });
 
     test('calls handleCrawl when Crawl All button is clicked', async () => {

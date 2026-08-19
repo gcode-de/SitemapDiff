@@ -159,7 +159,7 @@ const SiteForm: React.FC<SiteFormProps> = ({
                 />
                 <Button variant="contained" sx={{marginBottom: 2}}
                         disabled={!formData?.baseURL}
-                        onClick={() => findSitemapByBaseURL(formData?.baseURL)}>Find Sitemap</Button>
+                        onClick={() => void findSitemapByBaseURL(formData?.baseURL).catch(() => undefined)}>Find Sitemap</Button>
                 <TextField
                     label="Enter Sitemap-URL manually"
                     multiline
